@@ -55,6 +55,32 @@ run `./deploy.sh` to update the server
 with your work. Make sure you have your latest changes committed to master
 with `git commit`.
 
+## Initial System Setup
+
+The setup of this whole stack is based on
+[this tutorial](https://github.com/brandones/shiny-keycloak/).
+Mostly you'll just want to follow along there.
+
+You can use `fabfile install_docker install_docker_compose` to get those
+steps out of the way.
+
+`fabfile install_analytics` will set up the repository at `/opt/ces-analytics/`.
+It will also attempt to copy `credentials-secret.txt`.
+
+### Credentials Secret
+
+The build process on the server will expect to find a file at
+`/opt/ces-analytics/system/shinyproxy/credentials-secret.txt`. It should
+contain only and exactly the KeyCloak credentials secret. You can find this
+in the KeyCloak admin panel, assuming you've set KeyCloak up according to the
+tutorial above, accordingly:
+
+1. In the drop-down near the top-left, make sure the realm is set to "Shinyproxy"
+(and not "Master").
+1. In the left menu under "Configure," click "Clients"
+1. In the top bar, click "Credentials," which should be the second tab
+1. Copy the **Secret**
+
 ## Technical Details
 
 Everything in this project runs in Docker, orchestrated by Docker Compose.
@@ -63,12 +89,10 @@ KeyCloak backed by MariaDB is used for authentication.
 
 ShinyProxy serves Shiny apps to signed-in users.
 
-The setup of this whole stack is based on
-[this tutorial](https://github.com/brandones/shiny-keycloak/).
-Please look there for additional technical details.
-
 The server setup and deployment process is facilitated with
-[Fabric 1.x](https://www.fabfile.org/installing-1.x.html).
+[Fabric 1.x](https://www.fabfile.org/installing-1.x.html). To find out what
+Fabric commands are configured, `cd` into the `system/` directory and run
+`fab -l`. To find out more about a command run `fab -d <command>`.
 
 To understand how deployment works, please see the `deploy` function in 
 `system/fabfile.py`, and the script `system/build.sh`. There is a bit of
