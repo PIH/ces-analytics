@@ -1,0 +1,6 @@
+# This is the RProfile.site for all of the Shiny apps.
+# It gets copied by the build process into system/apps/<app_dir>/
+
+local({
+   options(shiny.port = 3838, shiny.host = "0.0.0.0")
+})

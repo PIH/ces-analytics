@@ -27,13 +27,16 @@ cd system
 cd ..
 
 echo "== Setting up Applications =="
-cd apps
+rm -r system/apps
+cp -r apps system/apps
+cd system/apps
     for APP_DIR in *; do
         if [ -d "${APP_DIR}" ]; then
             cd ${APP_DIR}
                 echo
                 echo
                 echo "-- Setting up ${APP_DIR}"
+                cp ../../Rprofile.site .
                 docker build . -t ${APP_DIR}
             cd ..
             if ! grep -q ${APP_DIR} ${APPS_SPEC}; then
@@ -42,5 +45,5 @@ cd apps
             fi
         fi
     done
-cd ..
+cd ../..
 

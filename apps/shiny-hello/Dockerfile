@@ -6,11 +6,11 @@ MAINTAINER Brandon Istenes "bistenes@gmail.com"
 RUN R -e "install.packages(c('shiny', 'rmarkdown'), repos='https://cloud.r-project.org/')"
 
 # copy the app to the image
-RUN mkdir /root/helloapp
-COPY helloapp /root/helloapp
+RUN mkdir /root/app
+COPY helloapp /root/app
 
 COPY Rprofile.site /usr/lib/R/etc/
 
 EXPOSE 3838
 
-CMD ["R", "-e", "shiny::runApp('/root/helloapp')"]
+CMD ["R", "-e", "shiny::runApp('/root/app')"]

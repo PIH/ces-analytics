@@ -1,4 +1,4 @@
 #!/bin/bash
 
-sudo pip install 'fabric<2.0'
+sudo pip2 install 'fabric<2.0'
 
