@@ -66,7 +66,7 @@ def send_secret():
 
 def docker_clean():
     """ Frees up space from docker detritus. """
-    run("docker system prune")
+    run("docker system prune -f")
 
 
 def deploy():
