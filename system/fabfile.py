@@ -57,7 +57,11 @@ def create_secret_file():
     )
     print("0")
     print(secret)
-    run("echo " + secret + " >/opt/ces-analytics/shinyproxy/credentials-secret.txt")
+    run(
+        "echo "
+        + secret
+        + " >/opt/ces-analytics/system/shinyproxy/credentials-secret.txt"
+    )
 
 
 def deploy():
