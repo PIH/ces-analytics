@@ -13,7 +13,7 @@ cd system
         mkdir -p build/
         cp Dockerfile build/
         if [ ! -f credentials-secret.txt ]; then
-            echo "ERROR: $(pwd)/credentials-secret.txt needs to exist.
+            echo "ERROR: system/shinyproxy/credentials-secret.txt needs to exist.
                 It should contain exactly the KeyCloak credentials secret.
                 Please see README.md for information about how to obtain it."
             exit 1

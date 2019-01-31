@@ -50,23 +50,10 @@ def install_analytics():
         sudo("chmod -R g+w ces-analytics/")
 
 
-def create_secret_file():
-    secret = input(
-        "Please input the Credentials Secret from the KeyCloak admin, "
-        "then press enter."
-    )
-    print("0")
-    print(secret)
-    run(
-        "echo "
-        + secret
-        + " >/opt/ces-analytics/system/shinyproxy/credentials-secret.txt"
-    )
-
-
 def deploy():
     local("git status -uno")
     local("git push origin master")
+    put("./shinyproxy/credentials-secret.txt", "/opt/ces-analytics/system/shinyproxy/")
     with cd("/opt/ces-analytics"):
         run("git pull --force origin master")
         run("./build.sh")
