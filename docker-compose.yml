@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  mariadb:
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 'asdf;lkj'
+      MYSQL_DATABASE: keycloak
+      MYSQL_USER: keycloak
+      MYSQL_PASSWORD: password
+    networks:
+      - sp-net
+    volumes:
+      - mariadb:/var/lib/mysql
+  keycloak:
+    image: jboss/keycloak
+    ports:
+      - '9080:8080'
+    networks:
+      - sp-net
+    environment:
+      PROXY_ADDRESS_FORWARDING: 'true'
+      DB_VENDOR: mariadb
+      KEYCLOAK_IMPORT: /tmp/realm-export.json
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin123
+    volumes:
+      - ./keycloak/realm-export.json:/tmp/realm-export.json
+  shinyproxy:
+    image: shinyproxy
+    ports:
+      - '80:8080'
+    networks:
+      - sp-net
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+networks:
+  sp-net:
+    external: true
+
+volumes:
+  mariadb:
+    driver: local
