@@ -57,4 +57,5 @@ def deploy():
     with cd("/opt/ces-analytics"):
         run("git pull --force origin master")
         run("./build.sh")
-        run("docker-compose up -d")
+        with cd("system"):
+            run("docker-compose -p ces-analytics up -d")
