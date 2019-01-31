@@ -7,7 +7,7 @@ RUN R -e "install.packages(c('shiny', 'rmarkdown'), repos='https://cloud.r-proje
 
 # copy the app to the image
 RUN mkdir /root/app
-COPY helloapp /root/app
+COPY . /root/app
 
 COPY Rprofile.site /usr/lib/R/etc/
 
