@@ -12,10 +12,9 @@ proxy:
       internal-networking: true
   specs:
   - id: 01_hello
-    display-name: Hello Application
-    description: Application which demonstrates the basics of a Shiny app 
-    container-cmd: ["R", "-e", "shinyproxy::run_01_hello()"]
-    container-image: openanalytics/shinyproxy-demo
+    display-name: Brandon's Hello Application
+    description: It says hello
+    container-image: shiny-hello
     container-network: sp-net
   - id: 06_tabsets
     container-cmd: ["R", "-e", "shinyproxy::run_06_tabsets()"]
