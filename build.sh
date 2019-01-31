@@ -23,7 +23,7 @@ cd apps
         if [ -d "${APP_DIR}" ]; then
             cd ${APP_DIR}
                 echo "-- Setting up ${APP_DIR}"
-                docker build .
+                docker build . -t ${APP_DIR}
             cd ..
             if ! grep -q ${APP_DIR} ${APPLICATION_YML}; then
                 echo WARNING: Shiny app \"${APP_DIR}\" not found in \
