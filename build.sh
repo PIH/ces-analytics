@@ -1,4 +1,4 @@
-APPLICATION_YML=$(realpath shinyproxy/application.yml)
+APPS_SPEC=$(realpath apps.yml)
 
 echo
 echo "== Setting up ShinyProxy =="
@@ -36,7 +36,7 @@ cd apps
                 echo "-- Setting up ${APP_DIR}"
                 docker build . -t ${APP_DIR}
             cd ..
-            if ! grep -q ${APP_DIR} ${APPLICATION_YML}; then
+            if ! grep -q ${APP_DIR} ${APPS_SPEC}; then
                 echo WARNING: Shiny app \"${APP_DIR}\" not found in \
                     shinyproxy/application.yml
             fi
