@@ -17,7 +17,7 @@ def configure():
     # All users should automatically be in group "users"
     sudo("sed -i 's/#EXTRA_GROUPS\/.*/EXTRA_GROUPS=\"users\"/' /etc/adduser.conf")
     sudo("sed -i 's/#ADD_EXTRA_GROUPS=.*/ADD_EXTRA_GROUPS=1/' /etc/adduser.conf")
-    sudo("echo '/usr/bin/keychain $HOME/.ssh/id_rsa' >/etc/profile.d/keychain.sh")
+    sudo("echo '/usr/bin/keychain -q $HOME/.ssh/id_rsa' >/etc/profile.d/keychain.sh")
     sudo("echo 'source $HOME/.keychain/'$HOSTNAME-sh >>/etc/profile.d/keychain.sh")
 
 
