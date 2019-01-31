@@ -1,3 +1,5 @@
 #!/bin/bash
 
-fab deploy
+cd system
+    fab deploy
+cd ..
