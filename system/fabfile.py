@@ -11,11 +11,14 @@ def configure():
     
     Specifically:
         - Configures Ubuntu to automatically add all new users to group "users"
+        - Configures Keychain for all login shells
         - that's it for now
     """
     # All users should automatically be in group "users"
     sudo("sed -i 's/#EXTRA_GROUPS\/.*/EXTRA_GROUPS=\"users\"/' /etc/adduser.conf")
     sudo("sed -i 's/#ADD_EXTRA_GROUPS=.*/ADD_EXTRA_GROUPS=1/' /etc/adduser.conf")
+    sudo("echo '/usr/bin/keychain $HOME/.ssh/id_rsa' >/etc/profile.d/keychain.sh")
+    sudo("echo 'source $HOME/.keychain/'$HOSTNAME-sh >>/etc/profile.d/keychain.sh")
 
 
 def install_docker():
@@ -48,6 +51,7 @@ def install_docker_compose():
 def install_analytics():
     """ Copies the CES SSH key to the server and sets up this repository in /opt. """
     put("~/.ssh/id_rsa.ces", "~/.ssh/id_rsa")
+    put("~/.ssh/id_rsa.ces.pub", "~/.ssh/id_rsa.pub")
     sudo("chmod 600 ~/.ssh/id_rsa")
     sudo("cp ~/.ssh/id_rsa ~root/.ssh/")
     sudo("chown -R root:root ~root/.ssh/")
