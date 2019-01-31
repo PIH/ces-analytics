@@ -1,3 +1,6 @@
+from __future__ import print_function
+from builtins import input
+
 from fabric.api import env, put, local, run, sudo
 from fabric.context_managers import cd
 
@@ -47,8 +50,18 @@ def install_analytics():
         sudo("chmod -R g+w ces-analytics/")
 
 
+def create_secret_file():
+    secret = input(
+        "Please input the Credentials Secret from the KeyCloak admin, "
+        "then press enter."
+    )
+    print("0")
+    print(secret)
+    run("echo " + secret + " >/opt/ces-analytics/shinyproxy/credentials-secret.txt")
+
+
 def deploy():
-    local("git status")
+    local("git status -uno")
     local("git push origin master")
     with cd("/opt/ces-analytics"):
         run("git pull --force origin master")

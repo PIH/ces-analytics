@@ -4,6 +4,12 @@ echo "== Setting up ShinyProxy =="
 cd shinyproxy
     mkdir -p build/
     cp Dockerfile build/
+    if [ ! -f credentials-secret.txt ]; then
+        echo "ERROR: $(pwd)/credentials-secret.txt needs to exist.
+            It should contain exactly the KeyCloak credentials secret.
+            Please see README.md for information about how to obtain it."
+        exit 1
+    fi
     SECRET=$(<credentials-secret.txt)
     sed "s/<CREDENTIALS_SECRET>/$SECRET/" application.yml >build/application.yml
     cd build/
