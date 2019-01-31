@@ -1,4 +1,4 @@
-from fabric.api import env, put, run, sudo
+from fabric.api import env, put, local, run, sudo
 from fabric.context_managers import cd
 
 env.hosts = ["192.168.1.106"]
@@ -48,7 +48,9 @@ def install_analytics():
 
 
 def deploy():
+    local("git status")
+    local("git push origin master")
     with cd("/opt/ces-analytics"):
-        run("git pull --force")
+        run("git pull --force origin master")
         run("./build.sh")
         run("docker-compose up -d")
