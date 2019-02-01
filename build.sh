@@ -40,8 +40,7 @@ cd system/apps
                 docker build . -t ${APP_DIR}
             cd ..
             if ! grep -q ${APP_DIR} ${APPS_SPEC}; then
-                echo WARNING: Shiny app \"${APP_DIR}\" not found in \
-                    shinyproxy/application.yml
+                echo WARNING: Shiny app \"${APP_DIR}\" not found in apps.yml
             fi
         fi
     done

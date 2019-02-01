@@ -1,6 +1,7 @@
 credentials-secret.txt
-*/credentials-secret.txt
-*/build/
+**/credentials-secret.txt
+**/build/
+system/apps/
 
 env/
 *.pyc
