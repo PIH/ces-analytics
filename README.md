@@ -108,5 +108,3 @@ Fabric commands are configured, `cd` into the `system/` directory and run
 To understand how deployment works, please see the `deploy` function in 
 `system/fabfile.py`, and the script `system/build.sh`. There is a bit of
 cleverness involved in hiding technical details from the Shiny app developer.
-
-Hello World 
