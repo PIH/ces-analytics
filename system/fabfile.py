@@ -4,6 +4,7 @@ from fabric.api import env, put, local, run, sudo
 from fabric.context_managers import cd
 
 env.hosts = ["192.168.1.106"]
+env.use_ssh_config = True
 
 
 def configure():
