@@ -7,6 +7,8 @@ env/
 *.pyc
 .Rproj.user
 
+**/tmp/
+
 # Patient Identifying Information
 data/
 
