@@ -5,3 +5,10 @@ proxy:
     description: It says hello
     container-image: shiny-hello
     container-network: sp-net
+
+  - id: 02_acmps
+    display-name: Acompañantes Data Dashboard
+    description: Data dashboard for acompañante program
+    container-image: acmps-dashboard
+    container-network: sp-net
+
