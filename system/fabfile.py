@@ -3,8 +3,8 @@ from __future__ import print_function
 from fabric.api import env, put, local, run, sudo
 from fabric.context_managers import cd
 
+env.user = "doc"
 env.hosts = ["192.168.1.106"]
-env.use_ssh_config = True
 
 
 def configure():
