@@ -34,44 +34,37 @@ ui <- fluidPage(
         choices = c("Capitan", "Honduras", "Laguna" = "Laguna_del_Cofre", 
                     "Letrero", "Matasano", "Monterrey", "Plan Alta" = "Plan_Alta", 
                     "Plan Baja" = "Plan_Baja", "Reforma", "Salvador", "Soledad" )
-      ),
-      selectInput("selectMonth", "Month", 
-                  choices = c("January" = 1, "February" = 2, "March" =3, "April"= 4, "May" = 5, 
-                              "June" = 6, "July" = 7, "August" = 8, "September" = 9, "October" = 10,
-                              "November" = 11, "December" = 12) 
-      ), 
-      selectInput("selectDisease", "Disease", 
-                  choices = c("Diabetes" = "form.control_diabetes", 
-                              "Hypertension" = "form.control_htn", 
-                              "Depression" = "form.control_dep")
-                  
-      ),
-
-      selectInput("selectMeasureAcmps", "Accompaniment",
-                  choices = c("% Patients with >= 85% Satisfaction" = "percentPatientSatisfaction",
-                              "Average Patient Satisfaction" = "averagePatientSatisfaction",
-                              "% Patients with Accompaniment" = "percentAttendance",
-                              "% Acompañantes with >= 80% Mentorship" = "percentMentoria",
-                              "Average Mentorship" = "averageMentoria")
+      )
+      #selectInput("selectMonth", "Month", 
+      #            choices = c("January" = 1, "February" = 2, "March" =3, "April"= 4, "May" = 5, 
+      #                        "June" = 6, "July" = 7, "August" = 8, "September" = 9, "October" = 10,
+      #                        "November" = 11, "December" = 12) 
+      #), 
     ),
-      selectInput("selectMeasure", "Disease Control", 
-                  choices = c("% Controlled Patients" = "percentControl", 
-                              "Controlled Patients" = "numberControl",
-                              "Patients Not In Control" = "numberNotControl",
-                              "Patient Visits" = "numberVisits", 
-                              "Number Patient Visits Planned" = "visitsPlanned", 
-                              "% Hojas Visitas Llenadas" = "percentHojaVisita", 
-                              "% with Control Information" = "percentControlInfo"))
-    ),
-
-
     
-    
-   
+
     # Show a plot of the generated distribution
     mainPanel(
       tabsetPanel(type = "tabs",
                   tabPanel("Disease Control",
+		    fluidRow(
+		      column(width=3,offset=2,
+		        selectInput("selectDisease", "Disease", 
+                                       choices = c("Diabetes" = "form.control_diabetes", 
+                                       "Hypertension" = "form.control_htn", 
+                                       "Depression" = "form.control_dep"))
+		      ),
+		      column(width=3,offset=1,
+                        selectInput("selectMeasure", "Statistic", 
+                                       choices = c("% Controlled Patients" = "percentControl", 
+                                       "# Controlled Patients" = "numberControl",
+                                       "# Patients Not In Control" = "numberNotControl",
+                                       "# Patient Visits" = "numberVisits", 
+                                       "# of Planned Patient Visits" = "visitsPlanned", 
+                                       "% Visit Sheets Filled" = "percentHojaVisita", 
+                                       "% Patients with Control Information" = "percentControlInfo"))
+		      )
+		    ),
                            plotOutput("plotPerAcmp"),
                            plotOutput("plotViewMonths"),
                            plotOutput("plotViewCommunities") 
@@ -81,11 +74,22 @@ ui <- fluidPage(
                            tableOutput("tableCommunities"),
                            tableOutput("tablePerAcmp")
                   ),
-                  tabPanel("Accompaniment", 
+                  tabPanel("Accompaniment",
+		    fluidRow(
+		      column(width=5,offset=3,
+		           selectInput("selectMeasureAcmps", "Statistic",
+                                       choices = c("% Patients with >= 85% Satisfaction" = "percentPatientSatisfaction",
+                                       "Average Patient Satisfaction" = "averagePatientSatisfaction",
+                                       "% Patients with Accompaniment" = "percentAttendance",
+                                       "% Acompañantes with >= 80% Mentorship" = "percentMentoria",
+                                       "Average Mentorship" = "averageMentoria"))
+		      ),
                            plotOutput("plotAcmpsGraphs"),
-                           tableOutput("tableAcmpsMeasures"))
+                           tableOutput("tableAcmpsMeasures")
+	            )
                            # tableOutput("tableView"),
                            # tableOutput("inFile"))
+	          )		   
       )
     )
   )
