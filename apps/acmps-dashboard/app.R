@@ -12,6 +12,7 @@ library(ggplot2)
 library(XLConnect)
 library(readxl)
 library(reshape2)
+library(DT)
 
 source("data_prep.R")
 
@@ -65,14 +66,14 @@ ui <- fluidPage(
                                        "% Patients with Control Information" = "percentControlInfo"))
 		      )
 		    ),
-                           plotOutput("plotPerAcmp"),
-                           plotOutput("plotViewMonths"),
-                           plotOutput("plotViewCommunities") 
+                    fluidRow(plotOutput("plotPerAcmp")),
+                    fluidRow(plotOutput("plotViewMonths")),
+                    fluidRow(plotOutput("plotViewCommunities")) 
                   ),
                   tabPanel("Tablas",
-                           tableOutput("tableMonths"),
-                           tableOutput("tableCommunities"),
-                           tableOutput("tablePerAcmp")
+                           DTOutput("tableMonths"),
+                           DTOutput("tableCommunities"),
+                           DTOutput("tablePerAcmp")
                   ),
                   tabPanel("Accompaniment",
 		    fluidRow(
@@ -80,15 +81,15 @@ ui <- fluidPage(
 		           selectInput("selectMeasureAcmps", "Statistic",
                                        choices = c("% Patients with >= 85% Satisfaction" = "percentPatientSatisfaction",
                                        "Average Patient Satisfaction" = "averagePatientSatisfaction",
-                                       "% Patients with Accompaniment" = "percentAttendance",
+                                       "% Acompañante Attendance" = "percentAttendance",
                                        "% Acompañantes with >= 80% Mentorship" = "percentMentoria",
                                        "Average Mentorship" = "averageMentoria"))
-		      ),
-                           plotOutput("plotAcmpsGraphs"),
-                           tableOutput("tableAcmpsMeasures")
-	            )
-                           # tableOutput("tableView"),
-                           # tableOutput("inFile"))
+		      )
+		    ),
+		    fluidRow(plotOutput("plotAcmpsGraphs")),
+                    fluidRow(DTOutput("tableAcmpsMeasures"))
+                           # DTOutput("tableView"),
+                           # DTOutput("inFile"))
 	          )		   
       )
     )
@@ -127,12 +128,15 @@ server <- function(input, output, session) {
       geom_text(aes(label= plotColumn), vjust=0)
   })
   
-  output$tablePerAcmp <- renderTable({
+  output$tablePerAcmp <- renderDT({
     chronics <- ProcessData(input$formDataPath$datapath, input$cronicosPath$datapath)
     filteredData <- FilterByCommunity(chronics, input$selectCommunity)
     MeasureFunction <- GetMeasureFunctionPerAcmp(input$selectMeasure)
     tableData <- MeasureFunction(filteredData, input$selectDisease)
-  })
+  }, options = list(
+    "scrollY" = 300, "scrollX" = 100, "paging" = FALSE, "searching" = FALSE,
+    "columnDefs" = list(list("targets" = "_all", "className" = "dt-center"))
+  ), rownames = FALSE)
  
  # Graph and table for Cronicos Measures per Month Graph
   
@@ -150,12 +154,15 @@ server <- function(input, output, session) {
      geom_text(aes(label= plotColumn), vjust=0)
  })
  
- output$tableMonths <- renderTable({
+ output$tableMonths <- renderDT({
    chronics <- ProcessData(input$formDataPath$datapath, input$cronicosPath$datapath)
    filteredData <- FilterByCommunity(chronics, input$selectCommunity)
    MeasureFunction <- GetMeasureFunction(input$selectMeasure)
    plotData <- MeasureFunction(filteredData, input$selectDisease)
- })
+ }, options = list(
+    "scrollY" = 300, "scrollX" = 100, "paging" = FALSE, "searching" = FALSE,
+    "columnDefs" = list(list("targets" = "_all", "className" = "dt-center"))
+  ), rownames = FALSE)
  
  # Graph and table for Cronicos Measures Per Community (for 1 month)
  output$plotViewCommunities <- renderPlot({
@@ -172,12 +179,15 @@ server <- function(input, output, session) {
      geom_text(aes(label= plotColumn), vjust=0)
  })
  
- output$tableCommunities <- renderTable({
+ output$tableCommunities <- renderDT({
    chronics <- ProcessData(input$formDataPath$datapath, input$cronicosPath$datapath)
    filteredData <- FilterByMonth(chronics, input$selectMonth)
    MeasureFunction <- GetMeasureFunctionMonth(input$selectMeasure)
    tableData <- MeasureFunction(filteredData, input$selectDisease)
- })
+ }, options = list(
+    "scrollY" = 300, "scrollX" = 100, "paging" = FALSE, "searching" = FALSE,
+    "columnDefs" = list(list("targets" = "_all", "className" = "dt-center"))
+  ), rownames = FALSE)
 
  #########################################################################################
 ## Graph for ACMPS measures (Satis, Mentoria, Asistencia) 
@@ -197,26 +207,32 @@ server <- function(input, output, session) {
      
  })
  
- output$tableAcmpsMeasures <- renderTable({
+ output$tableAcmpsMeasures <- renderDT({
    acmps <- ProcessDataAcmps(input$formDataPath$datapath, input$acmpsCasesPath$datapath)
    filteredData <- FilterByCommunityAcmps(acmps, input$selectCommunity)
    MeasureFunction <- GetMeasureFunctionAcmps(input$selectMeasureAcmps)
    tableData <- MeasureFunction(filteredData)
- })
+ }, options = list(
+    "scrollY" = 300, "scrollX" = 100, "paging" = FALSE, "searching" = FALSE,
+    "columnDefs" = list(list("targets" = "_all", "className" = "dt-center"))
+  ), rownames = FALSE)
  
 
  
  ###########   NOT BEING USED RIGHT NOW ###########################
  
-#  output$inFile <- renderTable({
+#  output$inFile <- renderDT({
 #    input$formDataPath
 #  })
 #  
- output$tableView <- renderTable({
+ output$tableView <- renderDT({
    req(input$formDataPath)
    req(input$cronicosPath)
    return(ProcessData(input$formDataPath$datapath, input$cronicosPath$datapath))
- })
+ }, options = list(
+    "scrollY" = 300, "scrollX" = 100, "paging" = FALSE, "searching" = FALSE,
+    "columnDefs" = list(list("targets" = "_all", "className" = "dt-center"))
+  ), rownames = FALSE)
 #  
 #  
 # # Filter by community and plot % control DM
