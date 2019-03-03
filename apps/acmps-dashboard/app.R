@@ -19,16 +19,16 @@ source("data_prep.R")
 ui <- fluidPage(
 
   # Application title
-  titlePanel("Control de Enfermedades"),
+  titlePanel("Disease Control and Accompaniment"),
 
   # Sidebar with a slider input for number of bins
   sidebarLayout(
     sidebarPanel(
       dateRangeInput("dateRange", "Date Range:", 
                      start = "2017-01-01", format = "yyyy-mm-dd"),  
-      fileInput("formDataPath", "Form Data"),
+      fileInput("formDataPath", "Disease Control and Accompaniment"),
       fileInput("cronicosPath", "Chronic Cases"),
-      fileInput("acmpsCasesPath", "Acmps Cases"),
+      fileInput("acmpsCasesPath", "Acompañante Cases"),
       verbatimTextOutput("summary"),
       selectInput("selectCommunity", "Community", 
         choices = c("Capitan", "Honduras", "Laguna" = "Laguna_del_Cofre", 
@@ -36,9 +36,9 @@ ui <- fluidPage(
                     "Plan Baja" = "Plan_Baja", "Reforma", "Salvador", "Soledad" )
       ),
       selectInput("selectMonth", "Month", 
-                  choices = c("Jan" = 1, "Feb" = 2, "March" =3, "April"= 4, "May" = 5, 
-                              "June" = 6, "July" = 7, "Aug" = 8, "Sept" = 9, "Oct" = 10,
-                              "Nov" = 11, "Dec" = 12) 
+                  choices = c("January" = 1, "February" = 2, "March" =3, "April"= 4, "May" = 5, 
+                              "June" = 6, "July" = 7, "August" = 8, "September" = 9, "October" = 10,
+                              "November" = 11, "December" = 12) 
       ), 
       selectInput("selectDisease", "Disease", 
                   choices = c("Diabetes" = "form.control_diabetes", 
@@ -47,21 +47,21 @@ ui <- fluidPage(
                   
       ),
 
-      selectInput("selectMeasureAcmps", "Acmps Measure",
-                  choices = c("Percent Patients with >= 85% Satisfaction" = "percentPatientSatisfaction",
+      selectInput("selectMeasureAcmps", "Accompaniment",
+                  choices = c("% Patients with >= 85% Satisfaction" = "percentPatientSatisfaction",
                               "Average Patient Satisfaction" = "averagePatientSatisfaction",
-                              "Percent Asistencia Acmps" = "percentAttendance",
-                              "Percent Acmps with >= 80% Mentoria" = "percentMentoria",
-                              "Average Mentoria" = "averageMentoria")
+                              "% Patients with Accompaniment" = "percentAttendance",
+                              "% Acompañantes with >= 80% Mentorship" = "percentMentoria",
+                              "Average Mentorship" = "averageMentoria")
     ),
-      selectInput("selectMeasure", "Measure", 
-                  choices = c("Percent Control" = "percentControl", 
-                              "Number Control" = "numberControl",
-                              "Number Not In Control" = "numberNotControl",
-                              "Number Patient Visits" = "numberVisits", 
+      selectInput("selectMeasure", "Disease Control", 
+                  choices = c("% Controlled Patients" = "percentControl", 
+                              "Controlled Patients" = "numberControl",
+                              "Patients Not In Control" = "numberNotControl",
+                              "Patient Visits" = "numberVisits", 
                               "Number Patient Visits Planned" = "visitsPlanned", 
-                              "Percent Hojas Visitas Llenadas" = "percentHojaVisita", 
-                              "Percent Control Information Present" = "percentControlInfo"))
+                              "% Hojas Visitas Llenadas" = "percentHojaVisita", 
+                              "% with Control Information" = "percentControlInfo"))
     ),
 
 
@@ -71,7 +71,7 @@ ui <- fluidPage(
     # Show a plot of the generated distribution
     mainPanel(
       tabsetPanel(type = "tabs",
-                  tabPanel("Gráficos",
+                  tabPanel("Disease Control",
                            plotOutput("plotPerAcmp"),
                            plotOutput("plotViewMonths"),
                            plotOutput("plotViewCommunities") 
@@ -81,7 +81,7 @@ ui <- fluidPage(
                            tableOutput("tableCommunities"),
                            tableOutput("tablePerAcmp")
                   ),
-                  tabPanel("Acompañantes", 
+                  tabPanel("Accompaniment", 
                            plotOutput("plotAcmpsGraphs"),
                            tableOutput("tableAcmpsMeasures"))
                            # tableOutput("tableView"),
@@ -94,7 +94,17 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
 
-  
+  # Stop app in R session when closed
+  if (!interactive()) {
+    session$onSessionEnded(function() {
+      stopApp()
+      q("no")
+    })
+  } else {
+    session$onSessionEnded(function() {
+      stopApp()
+    })
+  } 
 
   # Graph and table for cronicos measures per ACMP
   
