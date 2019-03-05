@@ -35,12 +35,12 @@ ui <- fluidPage(
         choices = c("Capitan", "Honduras", "Laguna" = "Laguna_del_Cofre", 
                     "Letrero", "Matasano", "Monterrey", "Plan Alta" = "Plan_Alta", 
                     "Plan Baja" = "Plan_Baja", "Reforma", "Salvador", "Soledad" )
-      )
-      #selectInput("selectMonth", "Month", 
-      #            choices = c("January" = 1, "February" = 2, "March" =3, "April"= 4, "May" = 5, 
-      #                        "June" = 6, "July" = 7, "August" = 8, "September" = 9, "October" = 10,
-      #                        "November" = 11, "December" = 12) 
-      #), 
+      ),
+      selectInput("selectMonth", "Month", 
+                  choices = c("January" = 1, "February" = 2, "March" =3, "April"= 4, "May" = 5, 
+                              "June" = 6, "July" = 7, "August" = 8, "September" = 9, "October" = 10,
+                              "November" = 11, "December" = 12) 
+      ) 
     ),
     
 
@@ -133,10 +133,15 @@ server <- function(input, output, session) {
     filteredData <- FilterByCommunity(chronics, input$selectCommunity)
     MeasureFunction <- GetMeasureFunctionPerAcmp(input$selectMeasure)
     tableData <- MeasureFunction(filteredData, input$selectDisease)
-  }, options = list(
-    "scrollY" = 300, "scrollX" = 100, "paging" = FALSE, "searching" = FALSE,
-    "columnDefs" = list(list("targets" = "_all", "className" = "dt-center"))
-  ), rownames = FALSE)
+    tableColNames <- GetMeasureColnamesPerAcmp(input$selectMeasure)
+    tableData <- datatable(tableData, colnames = tableColNames, rownames=FALSE,
+                         options = list("scrollY" = TRUE, "scrollX" = 100, "paging" = FALSE, "searching" = FALSE,
+                                        "columnDefs" = list(list(className = 'dt-center', targets = '_all'))))
+
+   return( tableData
+           %>%
+           formatCurrency(columns = grep("%",tableColNames), currency = "%", digits = 2, before = FALSE))
+  })
  
  # Graph and table for Cronicos Measures per Month Graph
   
@@ -159,10 +164,14 @@ server <- function(input, output, session) {
    filteredData <- FilterByCommunity(chronics, input$selectCommunity)
    MeasureFunction <- GetMeasureFunction(input$selectMeasure)
    plotData <- MeasureFunction(filteredData, input$selectDisease)
- }, options = list(
-    "scrollY" = 300, "scrollX" = 100, "paging" = FALSE, "searching" = FALSE,
-    "columnDefs" = list(list("targets" = "_all", "className" = "dt-center"))
-  ), rownames = FALSE)
+   tableColNames <- GetMeasureColnames(input$selectMeasure)
+   plotData <- datatable(plotData, colnames = tableColNames, rownames=FALSE,
+                         options = list("scrollY" = TRUE, "scrollX" = 100, "paging" = FALSE, "searching" = FALSE,
+			                "columnDefs" = list(list(className = 'dt-center', targets = '_all'))))
+   return( plotData 
+           %>%
+           formatCurrency(columns = grep("%",tableColNames), currency = "%", digits = 2, before = FALSE))
+ }) 
  
  # Graph and table for Cronicos Measures Per Community (for 1 month)
  output$plotViewCommunities <- renderPlot({
@@ -184,10 +193,14 @@ server <- function(input, output, session) {
    filteredData <- FilterByMonth(chronics, input$selectMonth)
    MeasureFunction <- GetMeasureFunctionMonth(input$selectMeasure)
    tableData <- MeasureFunction(filteredData, input$selectDisease)
- }, options = list(
-    "scrollY" = 300, "scrollX" = 100, "paging" = FALSE, "searching" = FALSE,
-    "columnDefs" = list(list("targets" = "_all", "className" = "dt-center"))
-  ), rownames = FALSE)
+   tableColNames <- GetMeasureColnamesPerMonth(input$selectMeasure)
+   tableData <- datatable(tableData, colnames = tableColNames, rownames=FALSE,
+                         options = list("scrollY" = TRUE, "scrollX" = 100, "paging" = FALSE, "searching" = FALSE,
+                                        "columnDefs" = list(list(className = 'dt-center', targets = '_all'))))
+   return( tableData
+           %>%
+           formatCurrency(columns = grep("%",tableColNames), currency = "%", digits = 2, before = FALSE))
+ })
 
  #########################################################################################
 ## Graph for ACMPS measures (Satis, Mentoria, Asistencia) 
@@ -212,10 +225,15 @@ server <- function(input, output, session) {
    filteredData <- FilterByCommunityAcmps(acmps, input$selectCommunity)
    MeasureFunction <- GetMeasureFunctionAcmps(input$selectMeasureAcmps)
    tableData <- MeasureFunction(filteredData)
- }, options = list(
-    "scrollY" = 300, "scrollX" = 100, "paging" = FALSE, "searching" = FALSE,
-    "columnDefs" = list(list("targets" = "_all", "className" = "dt-center"))
-  ), rownames = FALSE)
+   tableColNames <- GetMeasureColnamesAcmps(input$selectMeasure)
+   tableData <- datatable(tableData, colnames = tableColNames, rownames=FALSE,
+                         options = list("scrollY" = TRUE, "scrollX" = 100, "paging" = FALSE, "searching" = FALSE,
+                                        "columnDefs" = list(list(className = 'dt-center', targets = '_all'))))
+
+   return( tableData
+           %>%
+           formatCurrency(columns = grep("%",tableColNames), currency = "%", digits = 2, before = FALSE))
+  })
  
 
  
@@ -230,7 +248,7 @@ server <- function(input, output, session) {
    req(input$cronicosPath)
    return(ProcessData(input$formDataPath$datapath, input$cronicosPath$datapath))
  }, options = list(
-    "scrollY" = 300, "scrollX" = 100, "paging" = FALSE, "searching" = FALSE,
+    "scrollY" = TRUE, "scrollX" = 100, "paging" = FALSE, "searching" = FALSE,
     "columnDefs" = list(list("targets" = "_all", "className" = "dt-center"))
   ), rownames = FALSE)
 #  

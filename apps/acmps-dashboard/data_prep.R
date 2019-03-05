@@ -119,7 +119,7 @@ PercentHojaVisitaAcmp <- function(cronicosForCommunity, controlCol){
   hojasTable <- merge(totalPatients, totalHojas, by = "form.nombre_acompanante")
   
   hojasTable <- setNames(hojasTable, c("form.nombre_acompanante", "total_patients", "hojas_llenas"))
-  hojasTable <- mutate(hojasTable, percent_hojas = hojas_llenas / total_patients * 100 )
+  hojasTable <- mutate(hojasTable, percent_hojas = (hojas_llenas / total_patients * 100) %>% round(digits = 2) )
   
   hojasTable <- na.omit(hojasTable)
   
@@ -144,7 +144,7 @@ PercentControlInfoAcmp <- function(cronicosForCommunity, controlCol){
  controlTable <- merge(controlInfo, totalPatients, by = "form.nombre_acompanante")
   
   controlTable <- setNames(controlTable, c("form.nombre_acompanante", "control_info", "total_patients"))
-  controlTable <- mutate(controlTable, percent_control_info = control_info / total_patients * 100 )
+  controlTable <- mutate(controlTable, percent_control_info = (control_info / total_patients * 100) %>% round(digits = 2) )
   
   controlTable <- na.omit(controlTable)
   
@@ -166,7 +166,7 @@ PercentControlAcmp <- function(cronicosForCommunity, controlCol){
   diseaseForCommunity <- setNames(diseaseForCommunity, c("form.nombre_acompanante", "Total", "Control"))
   
   diseaseForCommunity <- mutate(diseaseForCommunity, 
-                                control_percent = Control / Total * 100)
+                                control_percent = (Control / Total * 100) %>% round(digits = 2))
   
   diseaseForCommunity <- na.omit(diseaseForCommunity)
   
@@ -245,6 +245,17 @@ GetMeasureFunctionPerAcmp <- function(measureName){
          "percentControlInfo" = PercentControlInfoAcmp)
 }
 
+GetMeasureColnamesPerAcmp <- function(measureName){
+  switch(measureName,
+         "percentControl" = c("Acompañante", "# Patients", "# Controlled", "% Controlled"),
+         "numberControl" = c("Acompañante", "# Patients", "# Controlled"),
+         "numberNotControl" = c("Acompañante", "# Patients", "# Controlled", "# Not Controlled"),
+         "numberVisits" = c("Acompañante", "Patient Visits", "Planned Visits"),
+         "visitsPlanned" = c("Acompañante", "Patient Visits", "Planned Visits"),
+         "percentHojaVisita" = c("Acompañante", "# Patients", "Visit Sheets Filled", "% Visit Sheets Filled"),
+         "percentControlInfo" = c("Acompañante", "With Control Info", "# Patients", "% With Control Info"))  
+}
+
 
 # Select Column to Display Function for by Acmp
 
@@ -290,7 +301,7 @@ PercentHojaVisita <- function(cronicosForCommunity, controlCol){
   hojasTable <- merge(totalPatients, totalHojas, by = "form.mes")
   
   hojasTable <- setNames(hojasTable, c("form.mes", "total_patients", "hojas_llenas"))
-  hojasTable <- mutate(hojasTable, percent_hojas = hojas_llenas / total_patients * 100 )
+  hojasTable <- mutate(hojasTable, percent_hojas = (hojas_llenas / total_patients * 100) %>% round(digits = 2))
   
   hojasTable <- na.omit(hojasTable)
   
@@ -315,7 +326,7 @@ PercentControlInfo <- function(cronicosForCommunity, controlCol){
   controlTable <- merge(controlInfo, totalPatients, by = "form.mes")
   
   controlTable <- setNames(controlTable, c("form.mes", "control_info", "total_patients"))
-  controlTable <- mutate(controlTable, percent_control_info = control_info / total_patients * 100 )
+  controlTable <- mutate(controlTable, percent_control_info = (control_info / total_patients * 100) %>% round(digits = 2))
   
   controlTable <- na.omit(controlTable)
   
@@ -338,7 +349,7 @@ PercentControl <- function(cronicosForCommunity, controlCol){
   diseaseForCommunity <- setNames(diseaseForCommunity, c("form.mes", "Total", "Control"))
   
   diseaseForCommunity <- mutate(diseaseForCommunity, 
-                                control_percent = Control / Total * 100)
+                                control_percent = (Control / Total * 100) %>% round(digits = 2))
   
   diseaseForCommunity <- na.omit(diseaseForCommunity)
   
@@ -413,6 +424,17 @@ GetMeasureFunction <- function(measureName){
          "percentControlInfo" = PercentControlInfo)
 }
 
+GetMeasureColnames <- function(measureName){
+  switch(measureName,
+         "percentControl" = c("Mes", "# Patients", "# Controlled", "% Controlled"),
+         "numberControl" = c("Mes", "# Patients", "# Controlled"),
+         "numberNotControl" = c("Mes", "# Patients", "# Controlled", "# Not Controlled"),
+         "numberVisits" = c("Mes", "Patient Visits", "Planned Visits"),
+         "visitsPlanned" = c("Mes", "Patient Visits", "Planned Visits"),
+         "percentHojaVisita" = c("Mes", "# Patients", "Visit Sheets Filled", "% Visit Sheets Filled"),
+         "percentControlInfo" = c("Mes", "With Control Info", "# Patients", "% With Control Info"))
+}
+
 
 # Select Column to Display Function 
 
@@ -457,7 +479,7 @@ PercentHojaVisitaMonth <- function(cronicosForCommunity, controlCol){
   hojasTable <- merge(totalPatients, totalHojas, by = "community")
   
   hojasTable <- setNames(hojasTable, c("community", "total_patients", "hojas_llenas"))
-  hojasTable <- mutate(hojasTable, percent_hojas = hojas_llenas / total_patients * 100 )
+  hojasTable <- mutate(hojasTable, percent_hojas = (hojas_llenas / total_patients * 100) %>% round(digits = 2))
   
   hojasTable <- na.omit(hojasTable)
   
@@ -482,7 +504,7 @@ PercentControlInfoMonth <- function(cronicosForCommunity, controlCol){
   controlTable <- merge(controlInfo, totalPatients, by = "community")
   
   controlTable <- setNames(controlTable, c("community", "control_info", "total_patients"))
-  controlTable <- mutate(controlTable, percent_control_info = control_info / total_patients * 100 )
+  controlTable <- mutate(controlTable, percent_control_info = (control_info / total_patients * 100) %>% round(digits = 2))
   
   controlTable <- na.omit(controlTable)
   
@@ -503,7 +525,7 @@ PercentControlMonth <- function(cronicosForMonth, controlCol){
   
   diseaseForMonth <- setNames(diseaseForMonth, c("community", "Total", "Control"))
   
-  diseaseForMonth <- mutate(diseaseForMonth, control_percent = Control / Total *  100)
+  diseaseForMonth <- mutate(diseaseForMonth, control_percent = (Control / Total *  100) %>% round(digits = 2))
   
   diseaseForMonth <- na.omit(diseaseForMonth)
   
@@ -584,6 +606,17 @@ GetMeasureFunctionMonth <- function(measureName){
          "visitsPlanned" = NumberVisitsMonth,
          "percentHojaVisita" = PercentHojaVisitaMonth, 
          "percentControlInfo" = PercentControlInfoMonth)
+}
+
+GetMeasureColnamesMonth <- function(measureName){
+  switch(measureName,
+         "percentControl" = c("Comunidad", "# Patients", "# Controlled", "% Controlled"),
+         "numberControl" = c("Comunidad", "# Patients", "# Controlled"),
+         "numberNotControl" = c("Comunidad", "# Patients", "# Controlled", "# Not Controlled"),
+         "numberVisits" = c("Comunidad", "Patient Visits", "Planned Visits"),
+         "visitsPlanned" = c("Comunidad", "Patient Visits", "Planned Visits"),
+         "percentHojaVisita" = c("Comunidad", "# Patients", "Visit Sheets Filled", "% Visit Sheets Filled"),
+         "percentControlInfo" = c("Comunidad", "With Control Info", "# Patients", "% With Control Info"))
 }
 
 
@@ -690,7 +723,7 @@ PercentPatientSatisfaction <- function(acmpsDataTable){
   satisfactionPerMonth <- setNames(satisfactionPerMonth, c("form.mes", "Total", "greater_85"))
   
   satisfactionPerMonth <- mutate(satisfactionPerMonth, 
-                                greater85_percent = greater_85 / Total * 100)
+                                greater85_percent = (greater_85 / Total * 100) %>% round(digits = 2))
   
   satisfactionPerMonth <- na.omit(satisfactionPerMonth)
   
@@ -726,7 +759,7 @@ PercentAttendance <- function(acmpsDataTable){
   
   attendancePerMonth <- merge(sumAttendance, totalAcmps, by = "form.mes")
   attendancePerMonth <- setNames(attendancePerMonth, c("form.mes", "Attended", "Total"))
-  attendancePerMonth <- mutate(attendancePerMonth, percent_attendance = Attended / Total * 100)
+  attendancePerMonth <- mutate(attendancePerMonth, percent_attendance = (Attended / Total * 100) %>% round(digits = 2))
   
   attendancePerMonth <- na.omit(attendancePerMonth)
   
@@ -754,9 +787,10 @@ PercentMentoria <- function(acmpsDataTable){
   mentoria <- merge(mentoria, totalSaludMaterna, by = "form.mes")
   
   mentoria <- setNames(mentoria, c("form.mes", "calificacion_cronicos", "calificacion_embarazo", "total_cronicos", "total_embarazo"))
+                            
   
-  mentoria <- mutate(mentoria, greater80_mentoria = (calificacion_cronicos + calificacion_embarazo) / 
-                       (total_cronicos + total_embarazo) * 100)
+  mentoria <- mutate(mentoria, greater80_mentoria  = ((Score_Chronic + Score_Pregnancy) / 
+                       (Total_Chronic + Total_Pregnancies) * 100) %>% round(digits = 2))
   
   mentoria <- na.omit(mentoria)
   
@@ -787,6 +821,14 @@ GetMeasureFunctionAcmps <- function(measureName){
          "averagePatientSatisfaction" = AveragePatientSatisfaction,
          "percentAttendance" = PercentAttendance, 
          "percentMentoria" = PercentMentoria)
+}
+
+GetMeasureColnamesAcmps <- function(measureName){
+  switch(measureName,
+         "percentPatientSatisfaction" = c("Month", "Patients", "# Satisfaction >= 85%","% Satisfaction >= 85%"),
+         "averagePatientSatisfaction" = c("Month", "Average Satisfaction"),
+         "percentAttendance" = c("Month", "Attended Talks", "Total Talks","% Attendance"),
+         "percentMentoria" = c("Month", "Score_Chronic", "Score_Pregnancy", "Total_Chronic", "Total_Pregnancies", "Mentorship >= %80"))
 }
 
 
