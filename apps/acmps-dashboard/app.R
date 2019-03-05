@@ -68,12 +68,18 @@ ui <- fluidPage(
 		    ),
                     fluidRow(plotOutput("plotPerAcmp")),
                     fluidRow(plotOutput("plotViewMonths")),
-                    fluidRow(plotOutput("plotViewCommunities")) 
-                  ),
-                  tabPanel("Tablas",
-                           DTOutput("tableMonths"),
-                           DTOutput("tableCommunities"),
+                    fluidRow(plotOutput("plotViewCommunities")), 
+	            tabsetPanel(type = "tabs",
+		      tabPanel("Data by Month",
+                           DTOutput("tableMonths")
+		      ),
+		      tabPanel("Data by Community",
+                           DTOutput("tableCommunities")
+		      ),
+		      tabPanel("Data by Acompañante",
                            DTOutput("tablePerAcmp")
+		      )
+                    )
                   ),
                   tabPanel("Accompaniment",
 		    fluidRow(
