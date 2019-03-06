@@ -252,7 +252,7 @@ GetMeasureColnamesPerAcmp <- function(measureName){
          "numberNotControl" = c("Acompañante", "# Patients", "# Controlled", "# Not Controlled"),
          "numberVisits" = c("Acompañante", "Patient Visits", "Planned Visits"),
          "visitsPlanned" = c("Acompañante", "Patient Visits", "Planned Visits"),
-         "percentHojaVisita" = c("Acompañante", "# Patients", "Visit Sheets Filled", "% Visit Sheets Filled"),
+         "percentHojaVisita" = c("Acompañante", "# Patients", "Visit Forms Filled", "% Visit Forms Filled"),
          "percentControlInfo" = c("Acompañante", "With Control Info", "# Patients", "% With Control Info"))  
 }
 
@@ -431,7 +431,7 @@ GetMeasureColnames <- function(measureName){
          "numberNotControl" = c("Mes", "# Patients", "# Controlled", "# Not Controlled"),
          "numberVisits" = c("Mes", "Patient Visits", "Planned Visits"),
          "visitsPlanned" = c("Mes", "Patient Visits", "Planned Visits"),
-         "percentHojaVisita" = c("Mes", "# Patients", "Visit Sheets Filled", "% Visit Sheets Filled"),
+         "percentHojaVisita" = c("Mes", "# Patients", "Visit Forms Filled", "% Visit Forms Filled"),
          "percentControlInfo" = c("Mes", "With Control Info", "# Patients", "% With Control Info"))
 }
 
@@ -615,7 +615,7 @@ GetMeasureColnamesMonth <- function(measureName){
          "numberNotControl" = c("Comunidad", "# Patients", "# Controlled", "# Not Controlled"),
          "numberVisits" = c("Comunidad", "Patient Visits", "Planned Visits"),
          "visitsPlanned" = c("Comunidad", "Patient Visits", "Planned Visits"),
-         "percentHojaVisita" = c("Comunidad", "# Patients", "Visit Sheets Filled", "% Visit Sheets Filled"),
+         "percentHojaVisita" = c("Comunidad", "# Patients", "Visit Forms Filled", "% Visit Forms Filled"),
          "percentControlInfo" = c("Comunidad", "With Control Info", "# Patients", "% With Control Info"))
 }
 
@@ -633,19 +633,6 @@ SelectPlotColumnMonth <- function(filteredData, colName){
          "percentControlInfo" = filteredData[["percent_control_info"]])
   
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ########################################## ACMPS Data #################################################
@@ -801,17 +788,7 @@ PercentMentoria <- function(acmpsDataTable){
 
 # Average Mentoria de ACMPS 
 
-
-
-
 # TODO: Asistencia, satis facil, mentoria, 
-
-
-
-
-
-
-
 
 # Get Measure Function for ACMPS
 
@@ -844,4 +821,25 @@ SelectPlotColumnAcmps <- function(filteredData, colName){
 }
 
 
+############################## Graph Functions
 
+SuccessRateBarplot <- function(plotData, xlab){
+  # plotData: data.frame where 1st Col: Category (i.e. Month, Community, or Acompañante)
+  #                            2nd Col: Total counts (e.g. total # of patients, etc)
+  #                            3rd Col: Success counts (e.g. # controlled patients, etc).
+  #                            4th Col: Fail counts (redundant, but needed to get meaningful colname)
+  #           the rest of the columns are ignored.
+  # plotData should have meaningful colnames which will be displayed on graph.
+
+  categories <- colnames(plotData)[1] 
+  totalCounts <- colnames(plotData)[2]
+  successCounts <- colnames(plotData)[3]
+  failCounts <- colnames(plotData)[4]
+  ggplot(plotData, aes(categories, totalCounts)) +
+     geom_bar(aes(successCounts), stat = "identity", col = "olivedrab1", fill = "olivedrab1") +
+     geom_bar(aes(failCounts), stat = "identity", col = "brown1", fill = "brown1")
+     ggtitle(successCounts) +
+     labs(x = xlab, y = totalCounts) +
+     theme(plot.title = element_text(hjust = 0.5)) 
+#     geom_text(aes(label= plotColumn), vjust=0)
+}

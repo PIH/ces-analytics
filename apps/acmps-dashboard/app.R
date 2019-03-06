@@ -57,13 +57,13 @@ ui <- fluidPage(
 		      ),
 		      column(width=3,offset=1,
                         selectInput("selectMeasure", "Statistic", 
-                                       choices = c("% Controlled Patients" = "percentControl", 
-                                       "# Controlled Patients" = "numberControl",
-                                       "# Patients Not In Control" = "numberNotControl",
-                                       "# Patient Visits" = "numberVisits", 
-                                       "# of Planned Patient Visits" = "visitsPlanned", 
-                                       "% Visit Sheets Filled" = "percentHojaVisita", 
-                                       "% Patients with Control Information" = "percentControlInfo"))
+                                       choices = c(#"% Controlled Patients" = "percentControl", 
+                                       "Controlled Patients" = "numberControl",
+                                       #"# Patients Not In Control" = "numberNotControl",
+                                       "Patient Visits" = "numberVisits", 
+                                       #"# of Planned Patient Visits" = "visitsPlanned", 
+                                       "Visit Forms Filled" = "percentHojaVisita", 
+                                       "Patients with Control Information" = "percentControlInfo"))
 		      )
 		    ),
                     fluidRow(plotOutput("plotPerAcmp")),
