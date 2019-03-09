@@ -823,23 +823,33 @@ SelectPlotColumnAcmps <- function(filteredData, colName){
 
 ############################## Graph Functions
 
-SuccessRateBarplot <- function(plotData, xlab){
-  # plotData: data.frame where 1st Col: Category (i.e. Month, Community, or Acompañante)
-  #                            2nd Col: Total counts (e.g. total # of patients, etc)
-  #                            3rd Col: Success counts (e.g. # controlled patients, etc).
-  #                            4th Col: Fail counts (redundant, but needed to get meaningful colname)
-  #           the rest of the columns are ignored.
-  # plotData should have meaningful colnames which will be displayed on graph.
-
-  categories <- colnames(plotData)[1] 
-  totalCounts <- colnames(plotData)[2]
-  successCounts <- colnames(plotData)[3]
-  failCounts <- colnames(plotData)[4]
-  ggplot(plotData, aes(categories, totalCounts)) +
-     geom_bar(aes(successCounts), stat = "identity", col = "olivedrab1", fill = "olivedrab1") +
-     geom_bar(aes(failCounts), stat = "identity", col = "brown1", fill = "brown1")
-     ggtitle(successCounts) +
-     labs(x = xlab, y = totalCounts) +
-     theme(plot.title = element_text(hjust = 0.5)) 
-#     geom_text(aes(label= plotColumn), vjust=0)
+SuccessRateBarplot <- function(data, graphTitle = NULL){
+  # data: data.frame where 1st Col: Category (i.e. Month, Community, or Acompañante)
+  #                            2nd Col: Total counts (e.g. total # of patients, etc) (Redundant but used to get meaningful axis names)
+  #                            3rd Col: Counts in condition 1 (e.g. # controlled patients, etc).
+  #                            4th Col: Counts in condition 2 (e.g. # not controlled patietns, etc).
+  #                            nth Col: Counts in condition (n-2) ... 
+  # data should have meaningful colnames which will be displayed on graph.
+  ndataCols <- ncol(data)-2
+  totalCounts <- rep(data[,2], each = ndataCols)
+  counts <- t( data[,3:ncol(data)] ) %>% as.vector
+  categories <- rep(data[,1], each = ndataCols)
+  successCat <- rep(colnames(data)[3:ncol(data)], times = nrow(data))
+  plotData <- data.frame(Category = categories, SubCategory = successCat, Counts = counts, 
+                         Percentage = (counts/totalCounts*100) %>% round(digits = 1) %>% paste("%", sep = ""))
+  plotData <- plotData  %>% filter( ! plotData$Percentage %in% c(0,NaN)) 
+  percentageLabels <- tapply(1:nrow(plotData), plotData$Category, 
+                             function(x){
+			       graphLabelPos <- c(0, cumsum(plotData$Counts[x]))
+			       graphLabelPos <- (graphLabelPos[-1] + graphLabelPos[-length(graphLabelPos)])/2
+ 			       return(data.frame(graphLabelPos = graphLabelPos))
+  			     }, simplify = FALSE)			    
+  percentageLabels <- do.call(rbind, percentageLabels)
+  plotData <- cbind(plotData, percentageLabels)
+    ggplot(data=plotData, aes(fill = SubCategory, x = Category, y = Counts)) +
+           xlab(colnames(data)[1]) + ylab(colnames(data)[2]) + labs(title = graphTitle) +
+    geom_bar(stat = "identity") + 
+    geom_label(label.size = 0.1, aes(x = Category, y = graphLabelPos, label = Percentage), 
+               show.legend = FALSE)+
+    theme(legend.title = element_blank())
 }
