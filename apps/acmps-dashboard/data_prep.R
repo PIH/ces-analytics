@@ -820,6 +820,149 @@ SelectPlotColumnAcmps <- function(filteredData, colName){
 
 }
 
+############################## Statistics Functions
+
+####### Disease Control
+ControlledPatients <- function(cronicos, controlCol, by = NULL){
+  # Computes table with columns 1) Category given by "by" (i.e. Mes, Acompañante, Community)
+  #                             2) Total number of patients
+  #                             3) Controlled patients of the disease given by "controlCol"
+  #                             4) Not controlled patients
+  #                             5) % Controlled
+  #                             6) % Not Controlled
+  byColumn <- switch( by, 
+                "Mes" = "form.mes",
+		"Acompañante" = "form.nombre_acompanante",
+		"Comunidad" = "community"
+              )
+
+  controlled <- aggregate(cronicos[controlCol], cronicos[byColumn],
+                            sum, na.rm = TRUE)
+  
+  total <- aggregate(cronicosForMonth[controlCol], cronicosForMonth[byColmumn],
+                          length)
+  
+  counts <- merge(monthTotal, monthControl, by =  byColumn)
+  
+  counts <- setNames(counts, c(by, "Total_Pacientes", "Controlados"))
+
+  counts$No_Controlados <- counts$Total_Pacientes - counts$Controlados
+
+  counts$"% Controlados" <- (counts$Controlados/counts$Total_Pacientes*100) %>% round(digits = 2) 
+
+  counts$"% No Controlados" <-  (counts$No_Controlados/counts$Total*100) %>% round(digits = 2)
+  
+  return(counts)
+  
+}
+
+
+NumberVisits <- function(cronicos, controlCol, by = NULL){
+
+  byColumn <- switch( by,
+                "Mes" = "form.mes",
+		"Acompañante" = "form.nombre_acompanante",
+		"Comunidad" = "community"
+              )
+
+  visits <- filter(cronicos, cronicos[controlCol] == 1)
+ 
+  visitsRealized <- aggregate(visits["form.numero_visita_acompanante"], visits[byColumn], 
+                     sum, na.rm = TRUE)
+ 
+  visitsPlanned <- aggregate(visits["form.numero_visitas_debe_realizar"], visits[byColumn], 
+                             sum, na.rm = TRUE)
+ 
+  visits <- merge(visitsPlanned, visitsRealized, by = byColumn)
+ 
+  visits <- setNames(visits, c("Mes", "Visitas_Planeadas", "Visitas_Hechas"))
+
+  visits$Visitas_Faltantes <- visits$Visitas_Planeadas - visits$Visitas_Hechas
+
+  visitsTable$"% Hechas" <- (visits$Visitas_Hechas/visits$Visitas_Planeadas*100) %>% round(digits = 2)
+
+  visitsTable$"% Faltantes" <- (visits$Visitas_Faltantes/visits$Visitas_Planeadas*100) %>% round(digits = 2)
+  
+  visitsTable <- na.omit(visitsTable)
+ 
+  return(visitsTable)
+}
+
+
+VisitSheets <- function(cronicosForCommunity, controlCol, by = NULL){
+
+  byColumn <- switch( by,
+                "Mes" = "form.mes",
+		"Acompañante" = "form.nombre_acompanante",
+		"Comunidad" = "community"
+              )
+
+  visits <- filter(cronicos, cronicos[controlCol] == 1)
+
+  colnames(visits)[1] <- "case_id"
+  
+  hojasVisita <- filter(visits, visits["form.numero_visita_acompanante"] >= 0)
+  hojasVisita <- filter(hojasVisita, hojasVisita["form.numero_visitas_debe_realizar"] >= 0)
+  
+  totalHojas <- aggregate(hojasVisita[controlCol], hojasVisita[byColumn], length)
+  
+  totalPatients <- aggregate(cronicos[controlCol], cronicos[byColumn],
+                             sum, na.rm = TRUE)
+  
+  hojasVisita <- aggregate(hojasVisita["form.numero_visita_acompanante"], hojasVisita[byColumn], 
+                           CountNonNA )
+  
+  hojasTable <- merge(totalPatients, totalHojas, by = byColumn)
+  
+  hojasTable <- setNames(hojasTable, c(by , "Total_Pacientes", "Hojas_Llenas"))
+
+  hojasTable$Hojas_Faltantes <- hojasTable$Total_Pacientes - hojasTable$Hojas_Llenas
+
+  hojasTable$"% Hojas_LLenas" <- (hojasTable$Hojas_Llenas/hojasTable$Total_Pacientes*100) %>% round(digits = 2)
+
+  hojasTable$"% Hojas_Faltantes" <-  (hojasTable$Hojas_Faltantes/hojasTable$Total_Pacientes*100) %>% round(digits = 2)
+  
+  hojasTable <- na.omit(hojasTable)
+  
+  return(hojasTable)
+}
+
+
+ControlInfo <- function(cronicos, controlCol, by = NULL){
+
+  byColumn <- switch( by,
+                "Mes" = "form.mes",
+		"Acompañante" = "form.nombre_acompanante",
+		"Comunidad" = "community"
+              )
+
+  diseaseCol <- PickDisease(controlCol)
+
+  patients <- filter(cronicos, cronicos[diseaseCol] == 1)
+
+  controlInfo <- aggregate(patients[controlCol], patients[byColumn],
+                           sum, na.rm = TRUE)
+  
+  totalPatients <- aggregate(patients[diseaseCol], patients[byColumn], length)
+  
+  controlTable <- merge(totalPatients, controlInfo, by = byColumn)
+  
+  controlTable <- setNames(controlTable, c(by, "Total_Pacientes", "Con_Control_Inf"))
+
+  controlTable$Sin_Control_Inf <- controlTable$Total_Pacientes - controTable$Con_Control_Inf
+
+  controlTable$"% Con Control Inf" <- (controTable$Con_Control_Inf/controlTable$Total_Pacientes*100) %>% round(digits = 2)
+
+  controlTable$"% Sin Control Inf" <- (controTable$Sin_Control_Inf/controlTable$Total_Pacientes*100) %>% round(digits = 2)
+  
+  controlTable <- na.omit(controlTable)
+  
+  return(controlTable)
+}
+
+####### Accompaniment
+
+
 
 ############################## Graph Functions
 
