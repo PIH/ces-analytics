@@ -20,23 +20,23 @@ source("data_prep.R")
 ui <- fluidPage(
 
   # Application title
-  titlePanel("Disease Control and Accompaniment"),
+  titlePanel("Programa de Acompañantes"),
 
   # Sidebar with a slider input for number of bins
   sidebarLayout(
     sidebarPanel(
-      dateRangeInput("dateRange", "Date Range:", 
+      dateRangeInput("dateRange", "Periodo:", 
                      start = "2017-01-01", format = "yyyy-mm-dd"),  
-      fileInput("formDataPath", "Disease Control and Accompaniment"),
-      fileInput("cronicosPath", "Chronic Cases"),
-      fileInput("acmpsCasesPath", "Acompañante Cases"),
+      fileInput("formDataPath", "Acompañamiento y Control de Crónicos"),
+      fileInput("cronicosPath", "Casos Crónicos"),
+      fileInput("acmpsCasesPath", "Casos por Acompañante"),
       verbatimTextOutput("summary"),
-      selectInput("selectCommunity", "Community", 
+      selectInput("selectCommunity", "Comunidad", 
         choices = c("Capitan", "Honduras", "Laguna" = "Laguna_del_Cofre", 
                     "Letrero", "Matasano", "Monterrey", "Plan Alta" = "Plan_Alta", 
                     "Plan Baja" = "Plan_Baja", "Reforma", "Salvador", "Soledad" )
       ),
-      selectInput("selectMonth", "Month", 
+      selectInput("selectMonth", "Mes", 
                   choices = c("January" = 1, "February" = 2, "March" =3, "April"= 4, "May" = 5, 
                               "June" = 6, "July" = 7, "August" = 8, "September" = 9, "October" = 10,
                               "November" = 11, "December" = 12) 
@@ -47,49 +47,46 @@ ui <- fluidPage(
     # Show a plot of the generated distribution
     mainPanel(
       tabsetPanel(type = "tabs",
-                  tabPanel("Disease Control",
+                  tabPanel("Control de Crónicos",
 		    fluidRow(
 		      column(width=3,offset=2,
-		        selectInput("selectDisease", "Disease", 
+		        selectInput("selectDisease", "Selecciona una Enferemdad", 
                                        choices = c("Diabetes" = "form.control_diabetes", 
                                        "Hypertension" = "form.control_htn", 
                                        "Depression" = "form.control_dep"))
 		      ),
 		      column(width=3,offset=1,
-                        selectInput("selectMeasure", "Statistic", 
-                                       choices = c(#"% Controlled Patients" = "percentControl", 
-                                       "Controlled Patients" = "numberControl",
-                                       #"# Patients Not In Control" = "numberNotControl",
-                                       "Patient Visits" = "numberVisits", 
-                                       #"# of Planned Patient Visits" = "visitsPlanned", 
-                                       "Visit Forms Filled" = "percentHojaVisita", 
-                                       "Patients with Control Information" = "percentControlInfo"))
+                        selectInput("selectMeasure", "Selecciona un Indicador", 
+                                       choices = c( "Pacientes Controlados" = "numberControl",
+                                       "Visitas de Pacientes" = "numberVisits", 
+                                       "Hojas de Visita Llenadas" = "percentHojaVisita", 
+                                       "Pacientes con Info de Control" = "percentControlInfo"))
 		      )
 		    ),
                     fluidRow(plotOutput("plotPerAcmp")),
                     fluidRow(plotOutput("plotViewMonths")),
                     fluidRow(plotOutput("plotViewCommunities")), 
 	            tabsetPanel(type = "tabs",
-		      tabPanel("Data by Month",
+		      tabPanel("Datos por Mes",
                            DTOutput("tableMonths")
 		      ),
-		      tabPanel("Data by Community",
+		      tabPanel("Datos por Comunidad",
                            DTOutput("tableCommunities")
 		      ),
-		      tabPanel("Data by Acompañante",
+		      tabPanel("Datos por Acompañante",
                            DTOutput("tablePerAcmp")
 		      )
                     )
                   ),
-                  tabPanel("Accompaniment",
+                  tabPanel("Acompañamiento",
 		    fluidRow(
 		      column(width=5,offset=3,
-		           selectInput("selectMeasureAcmps", "Statistic",
-                                       choices = c("% Patients with >= 85% Satisfaction" = "percentPatientSatisfaction",
-                                       "Average Patient Satisfaction" = "averagePatientSatisfaction",
-                                       "% Acompañante Attendance" = "percentAttendance",
-                                       "% Acompañantes with >= 80% Mentorship" = "percentMentoria",
-                                       "Average Mentorship" = "averageMentoria"))
+		           selectInput("selectMeasureAcmps", "Selecciona un Indicador",
+                                       choices = c("% Pacientes con satisfacción >= 85%" = "percentPatientSatisfaction",
+                                       "Satisfacción del Paciente" = "averagePatientSatisfaction",
+                                       "% Asistencia de Acompañantes" = "percentAttendance",
+                                       "% Con Mentoria >= 80%" = "percentMentoria",
+                                       "Promedio de Mentoria" = "averageMentoria"))
 		      )
 		    ),
 		    fluidRow(plotOutput("plotAcmpsGraphs")),
@@ -123,89 +120,72 @@ server <- function(input, output, session) {
     chronics <- ProcessData(input$formDataPath$datapath, input$cronicosPath$datapath)
     chronics <- FilterByDate(chronics, input$dateRange[1], input$dateRange[2])
     filteredData <- FilterByCommunity(chronics, input$selectCommunity)
-    MeasureFunction <- GetMeasureFunctionPerAcmp(input$selectMeasure)
-    plotData <- MeasureFunction(filteredData,input$selectDisease)
-    plotColumn <- SelectPlotColumnPerAcmp(plotData, input$selectMeasure)
-    ggplot(plotData, aes(form.nombre_acompanante, plotColumn)) +
-      geom_bar(stat = "identity", col = "tomato", fill = "tomato") + 
-      ggtitle(paste(input$selectMeasure, "in", input$selectCommunity)) +
-      labs(x = "Acompanante", y = paste(input$selectMeasure)) +
-      theme(plot.title = element_text(hjust = 0.5)) + 
-      geom_text(aes(label= plotColumn), vjust=0)
+    MeasureFunction <- GetMeasureFunction(input$selectMeasure)
+    plotData <- MeasureFunction(filteredData, input$selectDisease, by = "Acompañante")
+    ByCategoryStackedBarplot(plotData[,1:4]) 
   })
   
   output$tablePerAcmp <- renderDT({
     chronics <- ProcessData(input$formDataPath$datapath, input$cronicosPath$datapath)
     filteredData <- FilterByCommunity(chronics, input$selectCommunity)
-    MeasureFunction <- GetMeasureFunctionPerAcmp(input$selectMeasure)
-    tableData <- MeasureFunction(filteredData, input$selectDisease)
-    tableColNames <- GetMeasureColnamesPerAcmp(input$selectMeasure)
-    tableData <- datatable(tableData, colnames = tableColNames, rownames=FALSE,
-                         options = list("scrollY" = TRUE, "scrollX" = 100, "paging" = FALSE, "searching" = FALSE,
+    MeasureFunction <- GetMeasureFunction(input$selectMeasure)
+    tableData <- MeasureFunction(filteredData, input$selectDisease, by = "Acompañante")
+    cnames <- colnames(tableData)
+    tableData <- datatable(tableData, rownames = FALSE, colnames = cnames,
+                           options = list("scrollY" = TRUE, "scrollX" = 100, "paging" = FALSE, "searching" = FALSE,
                                         "columnDefs" = list(list(className = 'dt-center', targets = '_all'))))
-
-   return( tableData
-           %>%
-           formatCurrency(columns = grep("%",tableColNames), currency = "%", digits = 2, before = FALSE))
+    tableData <- tableData %>% formatCurrency(columns = grep("%", cnames, value = TRUE), 
+                                              currency = "%", digits = 2, before = FALSE)
+   return(tableData)
   })
  
  # Graph and table for Cronicos Measures per Month Graph
   
  output$plotViewMonths <- renderPlot({
-   chronics <- ProcessData(input$formDataPath$datapath, input$cronicosPath$datapath)
-   filteredData <- FilterByCommunity(chronics, input$selectCommunity)
-   MeasureFunction <- GetMeasureFunction(input$selectMeasure)
-   plotData <- MeasureFunction(filteredData, input$selectDisease)
-   plotColumn <- SelectPlotColumn(plotData, input$selectMeasure)
-   ggplot(plotData, aes(form.mes, plotColumn)) +
-     geom_bar(stat = "identity", col = "midnightblue", fill = "midnightblue") +
-     ggtitle(paste(input$selectMeasure, "for", input$selectCommunity)) +
-     labs(x = "Month", y = paste(input$selectMeasure)) +
-     theme(plot.title = element_text(hjust = 0.5)) +
-     geom_text(aes(label= plotColumn), vjust=0)
+    chronics <- ProcessData(input$formDataPath$datapath, input$cronicosPath$datapath)
+    chronics <- FilterByDate(chronics, input$dateRange[1], input$dateRange[2])
+    filteredData <- FilterByCommunity(chronics, input$selectCommunity)
+    MeasureFunction <- GetMeasureFunction(input$selectMeasure)
+    plotData <- MeasureFunction(filteredData, input$selectDisease, by = "Mes")
+    ByCategoryStackedBarplot(plotData[,1:4])  
  })
  
  output$tableMonths <- renderDT({
-   chronics <- ProcessData(input$formDataPath$datapath, input$cronicosPath$datapath)
-   filteredData <- FilterByCommunity(chronics, input$selectCommunity)
-   MeasureFunction <- GetMeasureFunction(input$selectMeasure)
-   plotData <- MeasureFunction(filteredData, input$selectDisease)
-   tableColNames <- GetMeasureColnames(input$selectMeasure)
-   plotData <- datatable(plotData, colnames = tableColNames, rownames=FALSE,
-                         options = list("scrollY" = TRUE, "scrollX" = 100, "paging" = FALSE, "searching" = FALSE,
-			                "columnDefs" = list(list(className = 'dt-center', targets = '_all'))))
-   return( plotData 
-           %>%
-           formatCurrency(columns = grep("%",tableColNames), currency = "%", digits = 2, before = FALSE))
+    chronics <- ProcessData(input$formDataPath$datapath, input$cronicosPath$datapath)
+    filteredData <- FilterByCommunity(chronics, input$selectCommunity)
+    MeasureFunction <- GetMeasureFunction(input$selectMeasure)
+    tableData <- MeasureFunction(filteredData, input$selectDisease, by = "Mes")
+    cnames <- colnames(tableData)
+    tableData <- datatable(tableData, rownames = FALSE, colnames = cnames,
+                           options = list("scrollY" = TRUE, "scrollX" = 100, "paging" = FALSE, "searching" = FALSE,
+                                        "columnDefs" = list(list(className = 'dt-center', targets = '_all'))))
+    tableData <- tableData %>% formatCurrency(columns = grep("%", cnames, value = TRUE),
+                                              currency = "%", digits = 2, before = FALSE)
+   return(tableData)
  }) 
  
  # Graph and table for Cronicos Measures Per Community (for 1 month)
  output$plotViewCommunities <- renderPlot({
-   chronics <- ProcessData(input$formDataPath$datapath, input$cronicosPath$datapath)
-   filteredData <- FilterByMonth(chronics, input$selectMonth)
-   MeasureFunction <- GetMeasureFunctionMonth(input$selectMeasure)
-   plotData <- MeasureFunction(filteredData, input$selectDisease)
-   plotColumn <- SelectPlotColumn(plotData, input$selectMeasure)
-   ggplot(plotData, aes(community, plotColumn)) +
-     geom_bar(stat = "identity", col = "darkslategray2", fill = "darkslategray2") + 
-     ggtitle(paste(input$selectMeasure, input$selectDisease, "in the Month of", input$selectMonth)) +
-     labs(x = "Community", y = paste(input$measureSelect)) +
-     theme(plot.title = element_text(hjust = 0.5)) + 
-     geom_text(aes(label= plotColumn), vjust=0)
+    chronics <- ProcessData(input$formDataPath$datapath, input$cronicosPath$datapath)
+    chronics <- FilterByDate(chronics, input$dateRange[1], input$dateRange[2])
+    filteredData <- FilterByCommunity(chronics, input$selectCommunity)
+    MeasureFunction <- GetMeasureFunction(input$selectMeasure)
+    plotData <- MeasureFunction(filteredData, input$selectDisease, by = "Comunidad")
+    ByCategoryStackedBarplot(plotData[,1:4])
  })
  
  output$tableCommunities <- renderDT({
-   chronics <- ProcessData(input$formDataPath$datapath, input$cronicosPath$datapath)
-   filteredData <- FilterByMonth(chronics, input$selectMonth)
-   MeasureFunction <- GetMeasureFunctionMonth(input$selectMeasure)
-   tableData <- MeasureFunction(filteredData, input$selectDisease)
-   tableColNames <- GetMeasureColnamesPerMonth(input$selectMeasure)
-   tableData <- datatable(tableData, colnames = tableColNames, rownames=FALSE,
-                         options = list("scrollY" = TRUE, "scrollX" = 100, "paging" = FALSE, "searching" = FALSE,
+    chronics <- ProcessData(input$formDataPath$datapath, input$cronicosPath$datapath)
+    filteredData <- FilterByCommunity(chronics, input$selectCommunity)
+    MeasureFunction <- GetMeasureFunction(input$selectMeasure)
+    tableData <- MeasureFunction(filteredData, input$selectDisease, by = "Comunidad")
+    cnames <- colnames(tableData)
+    tableData <- datatable(tableData, rownames = FALSE, colnames = cnames,
+                           options = list("scrollY" = TRUE, "scrollX" = 100, "paging" = FALSE, "searching" = FALSE,
                                         "columnDefs" = list(list(className = 'dt-center', targets = '_all'))))
-   return( tableData
-           %>%
-           formatCurrency(columns = grep("%",tableColNames), currency = "%", digits = 2, before = FALSE))
+    tableData <- tableData %>% formatCurrency(columns = grep("%", cnames, value = TRUE),
+                                              currency = "%", digits = 2, before = FALSE)
+   return(tableData)
  })
 
  #########################################################################################
@@ -214,31 +194,37 @@ server <- function(input, output, session) {
  output$plotAcmpsGraphs <- renderPlot({
    acmps <- ProcessDataAcmps(input$formDataPath$datapath, input$acmpsCasesPath$datapath)
    filteredData <- FilterByCommunityAcmps(acmps, input$selectCommunity)
-   MeasureFunction <- GetMeasureFunctionAcmps(input$selectMeasureAcmps)
-   plotData <- MeasureFunction(filteredData)
-   plotColumn <- SelectPlotColumnAcmps(plotData, input$selectMeasureAcmps)
-   ggplot(plotData, aes(form.mes, plotColumn)) +
-     geom_bar(stat = "identity", col = "dodgerblue", fill = "dodgerblue") + 
-     ggtitle(paste(input$selectMeasureAcmps,  "for", input$selectCommunity)) +
-     labs(x = "Month", y = input$measureSelectAcmps) +
-     theme(plot.title = element_text(hjust = 0.5)) + 
-     geom_text(aes(label= plotColumn), vjust=0)
-     
+   plotData <- switch(input$selectMeasureAcmps,
+                             "percentPatientSatisfaction" = PatientSatisfaction(filteredData, by = "Mes"),
+                             "averagePatientSatisfaction" = DistributionPatientSatisfaction(filteredData, by = "Mes"),
+                             "percentAttendance" = PercentAttendance(filteredData, by = "Mes"),
+                             "percentMentoria" = PercentMentoria(filteredData, by = "Mes")
+                             )
+   data <<- plotData
+   switch(input$selectMeasureAcmps,
+          "percentPatientSatisfaction" = ByCategoryStackedBarplot(plotData[,1:4]),
+	  "averagePatientSatisfaction" = ByCategoryBoxplot(plotData),
+	  "percentAttendance" = ByCategoryStackedBarplot(plotData[,1:4]),
+	  "percentMentoria" = ByCategoryStackedBarplot(plotData[,1:4]))
  })
  
  output$tableAcmpsMeasures <- renderDT({
    acmps <- ProcessDataAcmps(input$formDataPath$datapath, input$acmpsCasesPath$datapath)
    filteredData <- FilterByCommunityAcmps(acmps, input$selectCommunity)
-   MeasureFunction <- GetMeasureFunctionAcmps(input$selectMeasureAcmps)
-   tableData <- MeasureFunction(filteredData)
-   tableColNames <- GetMeasureColnamesAcmps(input$selectMeasure)
-   tableData <- datatable(tableData, colnames = tableColNames, rownames=FALSE,
+   tableData <- switch(input$selectMeasureAcmps,
+                       "percentPatientSatisfaction" = PatientSatisfaction(filteredData, by = "Mes"),
+                       "averagePatientSatisfaction" = AveragePatientSatisfaction(filteredData, by = "Mes"),
+                       "percentAttendance" = PercentAttendance(filteredData, by = "Mes"),
+                       "percentMentoria" = PercentMentoria(filteredData, by = "Mes")
+                      )
+   cnames <- colnames(tableData)
+   tableData <- datatable(tableData, rownames=FALSE,
                          options = list("scrollY" = TRUE, "scrollX" = 100, "paging" = FALSE, "searching" = FALSE,
                                         "columnDefs" = list(list(className = 'dt-center', targets = '_all'))))
 
    return( tableData
            %>%
-           formatCurrency(columns = grep("%",tableColNames), currency = "%", digits = 2, before = FALSE))
+           formatCurrency(columns = grep("%", cnames, value = TRUE), currency = "%", digits = 2, before = FALSE))
   })
  
 
