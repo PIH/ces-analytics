@@ -78,6 +78,12 @@ steps out of the way.
 `fabfile install_analytics` will set up the repository at `/opt/ces-analytics/`.
 It will also attempt to copy `credentials-secret.txt`.
 
+KeyCloak does not support ZeroConf/Bonjour addresses (like "ces-oficina.local").
+The server needs to have a static IP assigned. The point at which this is used
+(where the ZeroConf address cannot be used) is in ShinyProxy's `application.yml`.
+As of this writing, the server is configured (via the router admin page, on
+the router for `ces-oficina-1`, under `LAN`) at `192.168.1.63`.
+
 ### Credentials Secret
 
 The build process on the server will expect to find a file at

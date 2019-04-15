@@ -4,7 +4,8 @@ from fabric.api import env, put, local, run, sudo
 from fabric.context_managers import cd
 
 env.user = "doc"
-env.hosts = ["192.168.1.106"]
+env.hosts = ["ces-oficina.local"]
+env.use_ssh_config = False
 
 
 def configure():
@@ -79,6 +80,7 @@ def deploy():
     local("git status -uno")
     local("git push origin master")
     with cd("/opt/ces-analytics"):
+        run("whoami")
         run("git pull --force origin master")
         run("./build.sh")
         with cd("system"):
