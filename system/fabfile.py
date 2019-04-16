@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import time
 from fabric.api import env, put, local, run, sudo
 from fabric.context_managers import cd
 
@@ -79,8 +80,10 @@ def docker_clean():
 
 def deploy():
     """ Syncs this repository, runs `./build.sh`, updates Docker Compose, cleans. """
+    print()
+    print("Make sure you've committed and pushed everything!\n")
+    time.sleep(2)
     local("git status -uno")
-    local("git push origin master")
     with cd("/opt/ces-analytics"):
         run("whoami")
         run("git pull --force origin master")
