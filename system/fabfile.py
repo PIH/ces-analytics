@@ -6,6 +6,8 @@ from fabric.context_managers import cd
 env.user = "doc"
 env.hosts = ["ces-oficina.local"]
 env.use_ssh_config = False
+env.no_agent = True
+env.no_keys = True
 
 
 def configure():
