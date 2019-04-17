@@ -1,10 +1,14 @@
 from __future__ import print_function
 
+import time
 from fabric.api import env, put, local, run, sudo
 from fabric.context_managers import cd
 
 env.user = "doc"
-env.hosts = ["192.168.1.106"]
+env.hosts = ["ces-oficina.local"]
+env.use_ssh_config = False
+env.no_agent = True
+env.no_keys = True
 
 
 def configure():
@@ -76,9 +80,12 @@ def docker_clean():
 
 def deploy():
     """ Syncs this repository, runs `./build.sh`, updates Docker Compose, cleans. """
+    print()
+    print("Make sure you've committed and pushed everything!\n")
+    time.sleep(2)
     local("git status -uno")
-    local("git push origin master")
     with cd("/opt/ces-analytics"):
+        run("whoami")
         run("git pull --force origin master")
         run("./build.sh")
         with cd("system"):

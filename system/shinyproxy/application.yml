@@ -5,7 +5,7 @@ proxy:
   admin-groups: admins
   keycloak:
     realm: shinyproxy
-    auth-server-url: http://192.168.1.106:9080/auth
+    auth-server-url: http://192.168.1.63:9080/auth
     resource: shinyproxy                                                  
     credentials-secret: <CREDENTIALS_SECRET>  # interpolated by build
   docker:

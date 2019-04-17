@@ -50,19 +50,21 @@ ones that already exist (the indentation level is important, also):
     container-network: sp-net
 ```
 
-Before you can deploy, you'll need access to the server. Ask your system
-administrator to create a user for you on the server. That user should have
-the CES deploy key at `~/.ssh/id_rsa[.pub]`, and should have your personal
-SSH public key in `~/.ssh/authorized_keys`. If you don't have an SSH key,
-please 
-[create one](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/#generating-a-new-ssh-key)
-and send *only the public key*, i.e. `id_rsa.pub`, to your system administrator.
-
-Check that you have access to the server with `ssh username@the.server.address`.
-
 Once all the above is taken care of, you can deploy to the server!
 Run `./deploy.sh` to update the server with your work. Make sure you have your
 latest changes committed to master with `git commit`.
+
+### Troubleshooting
+
+#### Launching my app from ShinyProxy times out with `Container did not respond in time`
+
+It's probably failing to start. To debug:
+
+1. Log in to the server
+1. Run `docker images` to find your app's image name
+1. Run `docker run <my image name>` to start the app in Docker manually
+
+You should see an error message at this point.
 
 ## Administrator Documentation
 
@@ -77,6 +79,12 @@ steps out of the way.
 
 `fabfile install_analytics` will set up the repository at `/opt/ces-analytics/`.
 It will also attempt to copy `credentials-secret.txt`.
+
+KeyCloak does not support ZeroConf/Bonjour addresses (like "ces-oficina.local").
+The server needs to have a static IP assigned. The point at which this is used
+(where the ZeroConf address cannot be used) is in ShinyProxy's `application.yml`.
+As of this writing, the server is configured (via the router admin page, on
+the router for `ces-oficina-1`, under `LAN`) at `192.168.1.63`.
 
 ### Credentials Secret
 
