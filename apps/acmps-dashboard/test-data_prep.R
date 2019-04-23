@@ -15,3 +15,9 @@ test_that("FilterByDate drops rows with NA dates", {
   expect_equal(res, data.frame(Date = as.Date("2018-01-03")))
 })
 
+
+test_that("CountNonNA doesn't count rows with NA values",{
+  input <- c(NA, NA, NA, 1, 1, 0) 
+  res <- CountNonNA(input)
+  expect_equal(res, 3)
+})

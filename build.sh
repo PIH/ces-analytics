@@ -1,3 +1,7 @@
+realpath() {
+    [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
+}
+
 APPS_SPEC=$(realpath apps.yml)
 
 echo

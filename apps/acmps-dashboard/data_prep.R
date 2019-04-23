@@ -39,7 +39,9 @@ FixDatatypes <- function(chronicPtMonths) {
   # chronicPtMonths[9] <- lapply(chronicPtMonths[9], as.Date)
 
   colnames(chronicPtMonths)[colnames(chronicPtMonths) == "ï»¿caseid"] <- "case_id"
-
+  chronicPtMonths$community[which(chronicPtMonths$community == "Salvador_Urbina")] <- "Salvador"
+  chronicPtMonths$community[which(chronicPtMonths$community == "Laguna")] <- "Laguna_del_Cofre"
+  
   return(chronicPtMonths)
 }
 
@@ -110,7 +112,7 @@ PercentHojaVisita <- function(cronicos, controlCol, by = NULL) {
   hojasVisita <- filter(hojasVisita, hojasVisita["form.numero_visitas_debe_realizar"] >= 0)
 
   CountNonNA <- function(df) {
-    length(!is.na(df))
+    length(which(!is.na(df)))
   }
 
   if (controlCol != "all") {
@@ -160,7 +162,7 @@ PercentControlInfo <- function(cronicos, controlCol, by = NULL) {
   )
 
   CountNonNA <- function(df) {
-    length(!is.na(df))
+    length(which(!is.na(df)))
   }
 
 
@@ -231,7 +233,7 @@ PercentControl <- function(cronicos, controlCol, by = NULL) {
 
 
   CountNonNA <- function(df) {
-    length(!is.na(df))
+    length(which(!is.na(df)))
   }
 
   if (controlCol != "all") {
@@ -239,7 +241,7 @@ PercentControl <- function(cronicos, controlCol, by = NULL) {
       sum,
       na.rm = TRUE
     )
-
+    
     diseaseTotal <- aggregate(cronicos[controlCol], cronicos[byColumn], CountNonNA)
   }
 
@@ -322,7 +324,7 @@ NumberNotControl <- function(cronicos, controlCol, by = NULL) {
   )
 
   CountNonNA <- function(df) {
-    length(!is.na(df))
+    length(which(!is.na(df)))
   }
 
   if (controlCol != "all") {
@@ -461,7 +463,7 @@ FixDatatypesACMPS <- function(acmpsPtMonths) {
   acmpsPtMonths[24] <- lapply(acmpsPtMonths[24], as.numeric)
 
   acmpsPtMonths$Community[which(acmpsPtMonths$Community == "Salvador_Urbina")] <- "Salvador"
-
+  acmpsPtMonths$Community[which(acmpsPtMonths$Community == "Laguna")] <- "Laguna_del_Cofre"
   colnames(acmpsPtMonths)[colnames(acmpsPtMonths) == "Community"] <- "community"
   colnames(acmpsPtMonths)[colnames(acmpsPtMonths) == "first_name"] <- "form.nombre_acompanante"
 
@@ -501,7 +503,7 @@ PercentPatientSatisfaction <- function(acmpsDataTable, by = NULL) {
   )
 
   CountNonNA <- function(df) {
-    length(!is.na(df))
+    length(which(!is.na(df)))
   }
   patientsTotal <- aggregate(acmpsDataTable["form.porcentaje_satisf_pt"], acmpsDataTable[byColumn], CountNonNA)
 
@@ -560,7 +562,7 @@ PercentAttendance <- function(acmpsDataTable, by = NULL) {
   )
 
   CountNonNA <- function(df) {
-    length(!is.na(df))
+    length(which(!is.na(df)))
   }
   totalAcmps <- aggregate(acmpsDataTable["form.asistencia"], acmpsDataTable[byColumn], CountNonNA)
 
@@ -594,7 +596,7 @@ PercentMentoria <- function(acmpsDataTable, by = NULL) {
   )
 
   CountNonNA <- function(df) {
-    length(!is.na(df))
+    length(which(!is.na(df)))
   }
   totalCronicos <- aggregate(acmpsDataTable["form.calificacion_cronicos2"], acmpsDataTable[byColumn], CountNonNA)
 
@@ -635,7 +637,7 @@ AverageMentoria <- function(acmpsDataTable, by = NULL) {
   )
 
   CountNonNA <- function(df) {
-    length(!is.na(df))
+    length(which(!is.na(df)))
   }
   totalCronicos <- aggregate(acmpsDataTable["form.calificacion_cronicos2"], acmpsDataTable[byColumn], CountNonNA)
 

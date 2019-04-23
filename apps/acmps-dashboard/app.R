@@ -34,11 +34,11 @@ month_options <- c("Enero" = 1, "Febrero" = 2, "Marzo" =3, "Abril"= 4, "Mayo" = 
   "Junio" = 6, "Julio" = 7, "Augosto" = 8, "Septiembre" = 9, "Octubre" = 10,
   "Noviembre" = 11, "Diciembre" = 12) 
 
-acmps_options <- c("Porcentaje Pacientes con >= 85% Satisfación" = "percentPatientSatisfaction",
-                   "Promedio Satisfación de Paciente" = "averagePatientSatisfaction",
+acmps_options <- c("Porcentaje Pacientes con >= 85% Satisfacción" = "percentPatientSatisfaction",
+                   "Promedio Satisfacción de Paciente" = "averagePatientSatisfaction",
                    "Porcentaje Asistencia Acmps" = "percentAttendance",
-                   "Porcentaje Acmps with >= 80% Mentoria" = "percentMentoria",
-                   "Promedio Mentoria" = "averageMentoria")
+                   "Porcentaje Acmps con >= 80% Mentoría" = "percentMentoria",
+                   "Promedio Mentoría" = "averageMentoria")
 
 community_options <- c("Capitan", "Honduras", "Laguna" = "Laguna_del_Cofre", 
   "Letrero", "Matasano", "Monterrey", "Plan Alta" = "Plan_Alta", 
@@ -48,17 +48,20 @@ community_options <- c("Capitan", "Honduras", "Laguna" = "Laguna_del_Cofre",
 ui <- fluidPage(
 
   # Application title
-  titlePanel("Programa de Acompañantes"),
+  titlePanel("Panel de datos de Acompañantes"),
+  h5("Bienvenidos al Panel de Datos. Utiliza los botónes abajo para cambiar los gráficos."),
 
   # Sidebar with a slider input for number of bins
   sidebarLayout(
     sidebarPanel(
-      dateRangeInput("dateRange", "Periodo:", 
-                     start = "2018-01-01", end = "2018-01-31", format = "yyyy-mm-dd"),  
+      h5("Sube los datos de CommCare abajo en el formato de excel"),
       fileInput("formDataPath", "Form Data Export"),
       fileInput("cronicosPath", "Casos Crónicos"),
       fileInput("acmpsCasesPath", "Casos Acompañantes"),
       verbatimTextOutput("summary"),
+      h5("Selecciona el rango de fechas y la comunidad"),
+      dateRangeInput("dateRange", "Periodo:", 
+                     start = "2018-01-01", end = "2018-01-31", format = "yyyy-mm-dd"),  
       selectInput("selectCommunity", "Comunidad", 
         choices = community_options
       )
@@ -70,6 +73,7 @@ ui <- fluidPage(
       tabsetPanel(type = "tabs",
                   tabPanel("Control de Crónicos",
                            fluidRow(
+                            h5("Selecciona un indicador y enfermedad"),
                              column(width=3, offset=2,
                                     selectInput("selectDisease", "Enfermedad", 
                                                 choices = disease_options)
@@ -85,8 +89,8 @@ ui <- fluidPage(
                        
                            fluidRow(plotOutput("plotPerAcmp")),
                            br(),
-                           downloadButton(outputId = "downloadPlot",
-                                          label = "Download Plot!"),
+                           # downloadButton(outputId = "downloadPlot",
+                           #                label = "Download Plot!"),
                            fluidRow(plotOutput("plotViewMonths")),
                            br(),
                            fluidRow(plotOutput("plotViewCommunities")),
@@ -162,7 +166,7 @@ server <- function(input, output, session) {
     plotData <- MeasureFunction(filteredData,input$selectDisease, by = "Acompañante")
     plotColumn <- SelectPlotColumn(plotData, input$selectMeasure)
     ggplot(plotData, aes(form.nombre_acompanante, y = plotColumn)) +
-      geom_bar(stat = "identity", col = "tomato", fill = "tomato") + 
+      geom_bar(stat = "identity", col = "tomato", fill = "tomato") +
       ggtitle(paste(names(measure_options[which(measure_options == input$selectMeasure)]), "Para", names(disease_options[which(disease_options == input$selectDisease)]), "En", input$selectCommunity, "Por Acompañante")) +
       labs(x = "Acompañante", y = paste(names(measure_options[which(measure_options == input$selectMeasure)]))) +
     geom_text(aes(label = plotColumn), color = "white", size = 5, position = position_stack(vjust = 0.5)) + 
@@ -195,21 +199,26 @@ server <- function(input, output, session) {
  
  # Graph and table for Cronicos Measures per Month Graph
   
+
+  
  output$plotViewMonths <- renderPlot({
+   tick_names <- c("Jan", "Feb", "Mar", "Abr", "Mayo", "Junio", "Julio", "Ago", "Sep", "Oct", "Nov", "Dic") 
    chronics <- chronicsData()
    filteredData <- FilterByCommunity(chronics, input$selectCommunity)
    MeasureFunction <- GetMeasureFunction(input$selectMeasure)
    plotData <- MeasureFunction(filteredData, input$selectDisease, by = "Mes")
    plotColumn <- SelectPlotColumn(plotData, input$selectMeasure)
     ggplot(plotData, aes(form.mes, plotColumn)) +
-     geom_bar(stat = "identity", col = "midnightblue", fill = "midnightblue") +
-     ggtitle(paste(names(measure_options[which(measure_options == input$selectMeasure)]), 
+      geom_bar(stat = "identity", col = "midnightblue", fill = "midnightblue") +
+      scale_x_discrete(breaks = 1:12, labels = tick_names, limits = c(1: 12)) +
+      ggtitle(paste(names(measure_options[which(measure_options == input$selectMeasure)]), 
                    "Para", names(disease_options[which(disease_options == input$selectDisease)]), "En", input$selectCommunity, "Por Mes")) +
      labs(x = "Mes", y = paste(input$selectMeasure)) +
      geom_text(aes(label = plotColumn), color = "white", size = 5, position = position_stack(vjust = 0.5)) + 
      theme_minimal() + theme(plot.title = element_text(hjust = 0.5, size = 16, face = "bold"))
-
  })
+ 
+
  
  output$tableMonths <- renderDT({
    chronics <- chronicsData()
@@ -232,7 +241,7 @@ server <- function(input, output, session) {
    chronics <- chronicsData()
    # filteredData <- FilterByMonth(chronics, input$selectMonth)
    MeasureFunction <- GetMeasureFunction(input$selectMeasure)
-   plotData <- MeasureFunction(filteredData, input$selectDisease, by = "Comunidad")
+   plotData <- MeasureFunction(chronics, input$selectDisease, by = "Comunidad")
    plotColumn <- SelectPlotColumn(plotData, input$selectMeasure)
    ggplot(plotData, aes(community, plotColumn)) +
      geom_bar(stat = "identity", col = "darkslategray2", fill = "darkslategray2") + 
@@ -246,7 +255,7 @@ server <- function(input, output, session) {
    chronics <- chronicsData()
    # filteredData <- FilterByMonth(chronics, input$selectMonth)
    MeasureFunction <- GetMeasureFunction(input$selectMeasure)
-   tableData <- MeasureFunction(filteredData, input$selectDisease, by = "Comunidad")
+   tableData <- MeasureFunction(chronics, input$selectDisease, by = "Comunidad")
    cnames <- colnames(tableData)
    tableData <- datatable(tableData, rownames = FALSE, colnames = cnames,
                           options = list("scrollY" = TRUE, "scrollX" = 100, "paging" = FALSE, "searching" = FALSE,
@@ -288,8 +297,7 @@ server <- function(input, output, session) {
    plotColumn <- SelectPlotColumnAcmps(plotData, input$selectMeasureAcmps)
    ggplot(plotData, aes(form.nombre_acompanante, plotColumn)) +
      geom_bar(stat = "identity", col = "tomato", fill = "tomato") + 
-     ggtitle(paste(names(acmps_options[which(acmps_options == input$selectMeasureAcmps)]), "Para", names(disease_options[which(disease_options == input$selectDisease)]),
-                   "En", names(community_options[which(community_options == input$selectCommunity)]))) +
+     ggtitle(paste(names(acmps_options[which(acmps_options == input$selectMeasureAcmps)]), "Para", names(disease_options[which(disease_options == input$selectDisease)]),"En", names(community_options[which(community_options == input$selectCommunity)]))) +
      labs(x = "Acompañante", y = paste(names(acmps_options[which(acmps_options == input$selectMeasureAcmps)]))) + 
      theme(plot.title = element_text(hjust = 0.5, size = 16, face = "bold"))
  })
@@ -323,8 +331,7 @@ server <- function(input, output, session) {
    plotColumn <- SelectPlotColumnAcmps(plotData, input$selectMeasureAcmps)
    ggplot(plotData, aes(form.mes, plotColumn)) +
      geom_bar(stat = "identity", col = "midnightblue", fill = "midnightblue") +
-     ggtitle(paste(names(acmps_options[which(acmps_options == input$selectMeasureAcmps)]), "Para", names(disease_options[which(disease_options == input$selectDisease)]), 
-                   "En", names(community_options[which(community_options == input$selectCommunity)]))) +
+     ggtitle(paste(names(acmps_options[which(acmps_options == input$selectMeasureAcmps)]), "Para", names(disease_options[which(disease_options == input$selectDisease)]), "En", names(community_options[which(community_options == input$selectCommunity)]))) +
      labs(x = "Mes", y = paste(names(acmps_options[which(acmps_options == input$selectMeasureAcmps)]))) +
      theme(plot.title = element_text(hjust = 0.5, size = 16, face = "bold")) +
      geom_text(aes(label = plotColumn), color = "white", size = 5, position = position_stack(vjust = 0.5)) + 
