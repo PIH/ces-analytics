@@ -58,13 +58,20 @@ latest changes committed to master with `git commit`.
 
 #### Launching my app from ShinyProxy times out with `Container did not respond in time`
 
-It's probably failing to start. To debug:
+It's probably failing to start, probably because it didn't install all the libraries correctly. To debug:
 
 1. Log in to the server
 1. Run `docker images` to find your app's image name
 1. Run `docker run <my image name>` to start the app in Docker manually
 
 You should see an error message at this point.
+
+#### ShinyProxy sometimes fails to start apps with `500 - NullPointerException`
+
+Due to
+[this issue](https://support.openanalytics.eu/t/shinyproxy-keycloak-authenticated-but-cant-open-apps-consistently/770/5),
+users must have emails defined in KeyCloak. If they don't, you'll see this error the second time you launch an app in
+a session.
 
 ## Administrator Documentation
 
@@ -116,3 +123,14 @@ Fabric commands are configured, `cd` into the `system/` directory and run
 To understand how deployment works, please see the `deploy` function in 
 `system/fabfile.py`, and the script `system/build.sh`. There is a bit of
 cleverness involved in hiding technical details from the Shiny app developer.
+
+### Adding/Editing Users
+
+1. Open a tunnel to the Keycloak port on the server: `ssh -L 9080:localhost:9080 $SERVER_IP`
+1. Navigate to `localhost:9080`
+1. Sign in as the admin user
+1. Make sure the realm, the drop-down on the left, is set to "Shinyproxy" (and not "Master")
+1. In the left menu, click on "Users"
+
+Always ensure that every user has an email defined. Failing to do so will result in a confusing error due to
+[this bug](https://support.openanalytics.eu/t/shinyproxy-keycloak-authenticated-but-cant-open-apps-consistently/770/5).
